@@ -1,0 +1,5 @@
+/* index.css */
+.leaflet-container {
+  width: 100%;
+  height: 300px; /* altura del mapa pequeño */
+}

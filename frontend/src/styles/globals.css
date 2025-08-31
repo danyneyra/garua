@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  }
+   body {
+    @apply font-sans;
+  }
+}
+
+@config "../../tailwind.config.js"

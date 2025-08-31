@@ -1,0 +1,14 @@
+{
+  "name": "garua",
+  "private": true,
+  "version": "0.0.1",
+  "description": "",
+  "author": "Dany Daniel",
+  "scripts": {
+    "dev": "pnpm concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\""
+  },
+  "packageManager": "pnpm@10.14.0",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
