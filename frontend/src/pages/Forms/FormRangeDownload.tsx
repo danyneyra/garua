@@ -62,8 +62,8 @@ export default function FormRangeDownload({ codeStation, years }: Props) {
           {(item) => <SelectItem key={item.key}>{item.name}</SelectItem>}
         </Select>
       </div>
-      <div className="w-full flex justify-center md:justify-end pt-2">
-        <Button type="submit" radius="full" className="bg-[#6a7cce] text-white">
+      <div className="w-full flex justify-center pt-2">
+        <Button type="submit" radius="full" className="bg-[#5D49F3] text-white">
           Descargar CSV
         </Button>
       </div>

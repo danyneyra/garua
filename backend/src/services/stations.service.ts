@@ -3,9 +3,7 @@ import { Station, StationSearch } from "../types/station";
 import { capitalizeWords } from "../utils/string";
 
 export function getAllStations(): Station[] {
-  return estaciones.filter(
-    (station) => station.stationType === "M"
-  );
+  return estaciones.filter((station) => station.stationType === "M");
 }
 
 export function findStationByCode(code: string): Station | undefined {
@@ -20,11 +18,14 @@ export function searchStationsByName(
 ): StationSearch[] {
   const term = name.toString().toLowerCase();
   const searchData = estaciones
-    .filter((e) => e.name.toLowerCase().startsWith(term) && e.stationType === "M")
+    .filter(
+      (e) => e.name.toLowerCase().startsWith(term) && e.stationType === "M"
+    )
     .slice(0, limit);
   const dataResponse: StationSearch[] = searchData.map((item) => ({
     name: capitalizeWords(item.name),
     code: item.code,
+    type: item.status == "AUTOMATICA" ? "AUTOMATIC" : "CONVENTIONAL",
   }));
   return dataResponse;
 }

@@ -21,7 +21,9 @@ export interface StationBase {
 }
 
 // Información para la búsqueda
-export type StationSearch = Pick<StationBase, "name" | "code">
+export interface StationSearch extends Pick<StationBase, "name" | "code"> {
+  type: DataMode;
+}
 
 // Estación Meteorológica
 export interface MeteorologicalStation extends StationBase {

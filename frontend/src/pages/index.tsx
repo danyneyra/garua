@@ -106,8 +106,13 @@ export default function IndexPage() {
               setOpen(val.length > 0);
             }}
           />
+          {open && isLoading && (
+            <div className="absolute z-50 mt-1 w-full md:min-w-2xl rounded-xl border border-foreground-300 shadow-lg bg-white dark:bg-default p-4 flex flex-col items-center">
+              <span className="text-sm text-foreground-500">Buscando...</span>
+            </div>
+          )}
           {open && !isLoading && data && (
-            <div className="absolute z-50 mt-1 w-full md:min-w-2xl rounded-xl border border-foreground-300 shadow-lg bg-white dark:bg-default">
+            <div className="absolute z-50 mt-1 w-full md:min-w-2xl rounded-2xl border border-foreground-300 shadow-lg bg-white dark:bg-default">
               <Listbox
                 aria-label="Sugerencias de búsqueda"
                 selectionMode="single"
@@ -131,18 +136,18 @@ export default function IndexPage() {
 
         {!errorFetchStation && stationQuery && !isPending && (
           <>
-            <div className="flex flex-col w-full min-w-[320px] md:max-w-2xl gap-1 items-start py-3 px-6 md:px-4 rounded-b-[3rem] rounded-t-2xl bg-gradient-to-tr from-[#b3c1fa] to-[#6a7cce] opacity-90">
+            <div className="flex flex-col bg-[#C7CDFF] w-full min-w-[320px] md:max-w-2xl gap-1 items-start py-3 px-6 md:px-4 rounded-b-[3rem] rounded-t-2xl">
               <div className="flex flex-col gap-4 md:flex-row w-full md:justify-around items-start">
                 <div className="flex flex-col gap-1 pt-2">
                   <WeatherIcon />
-                  <div className="bg-[#6a7cce] flex rounded-full w-fit items-center text-center text-[0.75em] text-white px-2 py-1 gap-1">
+                  <div className="flex rounded-full w-fit items-center text-center text-[0.75em] bg-white text-black px-2 py-1 gap-1">
                     <span className="font-semibold">
                       {stationQuery.status === "AUTOMATICA"
                         ? "Automática"
                         : "Convencional"}
                     </span>
                   </div>
-                  <div className="flex flex-col dark:text-black">
+                  <div className="flex flex-col dark:text-black pl-1">
                     <div className="flex w-full gap-2 items-center">
                       <h2 className="font-bold">{stationQuery.name}</h2>
 
@@ -154,7 +159,7 @@ export default function IndexPage() {
                       {stationQuery.department} / {stationQuery.province} /{" "}
                       {stationQuery.district}
                     </span>
-                    <div className="flex gap-2 text-[0.8em]">
+                    <div className="flex gap-2 text-[0.8em] pt-4">
                       <span>Lat: {stationQuery.latitude}</span>
                       <span>Lon: {stationQuery.longitude}</span>
                     </div>
@@ -178,8 +183,8 @@ export default function IndexPage() {
                 radius="full"
                 classNames={{
                   base: "justify-around",
-                  cursor: "bg-[#6a7cce]",
-                  tab: "bg-[#dbe0f2] hover:bg-[#ccd7ff]",
+                  cursor: "bg-[#5D49F3]",
+                  tab: "bg-[#CFD4FF] hover:bg-[#ccd7ff]",
                   tabList: "gap-6 bg-transparent mb-3",
                   tabContent:
                     "group-data-[selected=true]:text-white text-black",

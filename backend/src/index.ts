@@ -9,6 +9,7 @@ dotenv.config();
 const app = express();
 
 // Configurar CORS usando variables de entorno
+console.log("CORS Origin:", config.cors.origin.split(','));
 const corsOptions = {
   origin: config.cors.origin.split(','),
   credentials: config.cors.credentials,
