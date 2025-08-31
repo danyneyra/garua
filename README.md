@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://garua.app/">
-    <img alt="refine logo" src="https://www.garua.app/favicon.svg">
+    <img alt="refine logo" src="https://www.garua.app/garua-logo.svg">
   </a>
   <p>Es una herramienta sencilla pero muy útil para descargar datos meteorológicos oficiales del <strong>SENAMHI</strong>.  
   </p>
