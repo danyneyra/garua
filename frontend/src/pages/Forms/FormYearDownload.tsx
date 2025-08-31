@@ -15,7 +15,7 @@ export default function FormYearDownload({
 }: Props) {
   const [yearValue, setYearValue] = useState<string>(years.yearEnd);
 
-  const url = `${apiURL}/senamhi/${codeStation}/year/${yearValue}`;
+  const url = `${apiURL}/api/senamhi/${codeStation}/year/${yearValue}`;
 
   const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setYearValue(e.target.value);
