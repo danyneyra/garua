@@ -13,7 +13,7 @@ export default function FormRangeDownload({ codeStation, years }: Props) {
   const [yearStartValue, setYearStartValue] = useState<string>(years.yearStart);
   const [yearEndValue, setYearEndValue] = useState<string>(years.yearEnd);
 
-  const url = `${apiURL}/senamhi/${codeStation}/range/${yearStartValue}/${yearEndValue}`;
+  const url = `${apiURL}/api/senamhi/${codeStation}/range/${yearStartValue}/${yearEndValue}`;
 
   const handleSelectionYearStartChange = (
     e: React.ChangeEvent<HTMLSelectElement>
