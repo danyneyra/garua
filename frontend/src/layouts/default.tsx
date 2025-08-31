@@ -22,7 +22,7 @@ export default function DefaultLayout({
         >
           <span className="text-default-600">Desarrollado con </span>
           <HeartFilledIcon className="text-[#6a7cce]" />
-          <p className="text-[#9aacf0]">Dany Daniel</p>
+          <p className="text-[#6a7cce]">Dany Daniel</p>
         </Link>
       </footer>
     </div>
