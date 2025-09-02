@@ -9,15 +9,16 @@ import { useDebouncedSearch } from "@/features/search/hooks/useSearch";
 import { Station, StationDataYears } from "@/types/station";
 import { useStation } from "@/features/search/hooks/useStation";
 import { ObjectGeneric } from "@/types/object";
-import FormPeriodDownload from "@/pages/Forms/FormPeriodDownload";
-import FormYearDownload from "./Forms/FormYearDownload";
-import FormRangeDownload from "./Forms/FormRangeDownload";
+import FormPeriodDownload from "@/pages/forms/FormPeriodDownload";
+import FormYearDownload from "./forms/FormYearDownload";
+import FormRangeDownload from "./forms/FormRangeDownload";
 import BirdCrazy from "@/lotties/birdCrazy";
 import MiniMap from "@/components/map";
 
 export default function IndexPage() {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [initPage, setInitPage] = useState(true);
   const [stationQuery, setStationQuery] = useState<Station>();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -34,6 +35,7 @@ export default function IndexPage() {
     const value = key.toString();
     console.log("Selected: ", value);
     setOpen(false);
+    setInitPage(false);
 
     // Consultar estación
     try {
@@ -79,7 +81,13 @@ export default function IndexPage() {
   return (
     <DefaultLayout>
       <section className="w-full md:min-w-2xl flex justify-center">
-        <div className="flex flex-col gap-4 items-center justify-center md:max-w-2xl text-center">
+        <div
+          className={`flex flex-col gap-4 items-center justify-center md:max-w-2xl text-center transition-all duration-500 ease-in-out ${
+            initPage
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 -translate-y-4 pointer-events-none hidden"
+          }`}
+        >
           <h1 className="text-4xl font-bold">
             Descarga datos meteorológicos oficiales del SENAMHI sin
             complicaciones
@@ -128,9 +136,17 @@ export default function IndexPage() {
             </div>
           )}
         </div>
+
         {isPending && (
           <div className="flex flex-col items-center justify-center gap-2">
             <BirdCrazy />
+          </div>
+        )}
+
+        {errorFetchStation && (
+          <div className="flex flex-col md:max-w-2xl px-6 py-6 md:px-0 w-full gap-2 justify-center items-center">
+            <p className="text-[#5D49F3] font-semibold">ERROR :(</p>
+            <span>{errorFetchStation?.message}</span>
           </div>
         )}
 
@@ -179,12 +195,12 @@ export default function IndexPage() {
               <Tabs
                 aria-label="Seleccionar período de datos"
                 variant="solid"
-                color="warning"
                 radius="full"
+                color="warning"
                 classNames={{
                   base: "justify-around",
                   cursor: "bg-[#5D49F3]",
-                  tab: "bg-[#CFD4FF] hover:bg-[#ccd7ff]",
+                  tab: "bg-[#CFD4FF] hover:bg-[#ccd7ff] aria-selected:bg-[#5D49F3]",
                   tabList: "gap-6 bg-transparent mb-3",
                   tabContent:
                     "group-data-[selected=true]:text-white text-black",

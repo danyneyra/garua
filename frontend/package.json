@@ -9,6 +9,7 @@
     "lint": "eslint --fix",
     "preview": "vite preview"
   },
+  "packageManager": "pnpm@10.14.0",
   "dependencies": {
     "@fontsource/dm-sans": "^5.2.6",
     "@heroui/button": "^2.2.24",

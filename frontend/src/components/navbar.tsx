@@ -18,13 +18,12 @@ export const Navbar = () => {
         justify="start"
       >
         <NavbarItem className="sm:flex gap-2">
-          <img src={garuaLogo} alt="Garúa" className="w-32 h-auto" />
+          <a href="./">
+            <img src={garuaLogo} alt="Garúa" className="w-32 h-auto" />
+          </a>
         </NavbarItem>
       </NavbarContent>
-      <NavbarContent
-        className="sm:flex basis-1/5 sm:basis-full"
-        justify="end"
-      >
+      <NavbarContent className="sm:flex basis-1/5 sm:basis-full" justify="end">
         <NavbarItem className="sm:flex gap-2">
           <Link isExternal href={siteConfig.links.github} title="GitHub">
             <GithubIcon className="text-default-500" />
