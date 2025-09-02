@@ -44,6 +44,7 @@
     "tailwind-variants": "2.0.1",
     "tailwindcss": "4.1.11"
   },
+  "packageManager": "pnpm@10.14.0",
   "devDependencies": {
     "@eslint/compat": "1.2.8",
     "@eslint/eslintrc": "3.3.1",
