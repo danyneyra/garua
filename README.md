@@ -61,7 +61,7 @@ De esta forma obtienes toda la información lista en un único CSV, sin tener qu
 
 ## 📚 Fuentes de datos
 
-Toda la información meteorológica proviene de:
+Garúa no es un servicio oficial del SENAMHI. Los datos provienen de consultas públicas en su portal. Toda la información meteorológica proviene de:
 
 - [**SENAMHI - Servicio Nacional de Meteorología e Hidrología del Perú**](https://www.senamhi.gob.pe/)
 
