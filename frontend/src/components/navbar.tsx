@@ -24,7 +24,7 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent className="sm:flex basis-1/5 sm:basis-full" justify="end">
-        <NavbarItem className="sm:flex gap-2">
+        <NavbarItem className="sm:flex gap-3">
           <Link isExternal href={siteConfig.links.github} title="GitHub">
             <GithubIcon className="text-default-500" />
           </Link>

@@ -80,9 +80,9 @@ export default function IndexPage() {
 
   return (
     <DefaultLayout>
-      <section className="w-full md:min-w-2xl flex justify-center">
+      <section className="w-full md:min-w-3xl flex justify-center">
         <div
-          className={`flex flex-col gap-4 items-center justify-center md:max-w-2xl text-center transition-all duration-500 ease-in-out ${
+          className={`flex flex-col gap-4 items-center pt-6 justify-center md:max-w-2xl text-center transition-all duration-500 ease-in-out ${
             initPage
               ? "opacity-100 translate-y-0"
               : "opacity-0 -translate-y-4 pointer-events-none hidden"
@@ -98,12 +98,12 @@ export default function IndexPage() {
           </p>
         </div>
       </section>
-      <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-        <div className="relative w-full md:max-w-2xl items-center justify-center">
+      <section className="flex flex-col items-center justify-center gap-4 py-4 md:py-6">
+        <div className="relative w-full md:max-w-3xl items-center justify-center">
           <Input
             ref={inputRef}
             autoComplete="off"
-            className="w-full md:min-w-2xl"
+            className="w-full md:min-w-3xl"
             label="Buscar estación"
             radius="full"
             startContent={<SearchIcon />}
@@ -115,12 +115,12 @@ export default function IndexPage() {
             }}
           />
           {open && isLoading && (
-            <div className="absolute z-50 mt-1 w-full md:min-w-2xl rounded-xl border border-foreground-300 shadow-lg bg-white dark:bg-default p-4 flex flex-col items-center">
+            <div className="absolute z-50 mt-1 w-full md:min-w-3xl rounded-xl border border-foreground-300 shadow-lg bg-white dark:bg-default p-4 flex flex-col items-center">
               <span className="text-sm text-foreground-500">Buscando...</span>
             </div>
           )}
           {open && !isLoading && data && (
-            <div className="absolute z-50 mt-1 w-full md:min-w-2xl rounded-2xl border border-foreground-300 shadow-lg bg-white dark:bg-default">
+            <div className="absolute z-50 mt-1 w-full md:min-w-3xl rounded-2xl border border-foreground-300 shadow-lg bg-white dark:bg-default">
               <Listbox
                 aria-label="Sugerencias de búsqueda"
                 selectionMode="single"
@@ -144,7 +144,7 @@ export default function IndexPage() {
         )}
 
         {errorFetchStation && (
-          <div className="flex flex-col md:max-w-2xl px-6 py-6 md:px-0 w-full gap-2 justify-center items-center">
+          <div className="flex flex-col md:max-w-3xl px-6 py-6 md:px-0 w-full gap-2 justify-center items-center">
             <p className="text-[#5D49F3] font-semibold">ERROR :(</p>
             <span>{errorFetchStation?.message}</span>
           </div>
@@ -152,7 +152,7 @@ export default function IndexPage() {
 
         {!errorFetchStation && stationQuery && !isPending && (
           <>
-            <div className="flex flex-col bg-[#C7CDFF] w-full min-w-[320px] md:max-w-2xl gap-1 items-start py-3 px-6 md:px-4 rounded-b-[3rem] rounded-t-2xl">
+            <div className="flex flex-col bg-[#C7CDFF] w-full min-w-[320px] md:max-w-3xl gap-1 items-start py-3 px-6 md:px-4 rounded-b-[3rem] rounded-t-2xl">
               <div className="flex flex-col gap-4 md:flex-row w-full md:justify-around items-start">
                 <div className="flex flex-col gap-1 pt-2">
                   <WeatherIcon />

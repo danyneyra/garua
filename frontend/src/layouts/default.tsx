@@ -10,10 +10,10 @@ export default function DefaultLayout({
   return (
     <div className="font-sans relative flex flex-col h-screen">
       <Navbar />
-      <main className="font-sans container mx-auto max-w-7xl px-6 flex-grow pt-12">
+      <main className="font-sans container mx-auto max-w-7xl px-6 flex-grow pt-4">
         {children}
       </main>
-      <footer className="w-full flex items-center justify-center py-3">
+      <footer className="w-full flex flex-col items-center justify-center py-3 gap-3">
         <Link
           isExternal
           className="flex items-center gap-1 text-current"
@@ -24,6 +24,7 @@ export default function DefaultLayout({
           <HeartFilledIcon className="text-[#6a7cce]" />
           <p className="text-[#6a7cce]">Dany Daniel</p>
         </Link>
+        <p className="text-[0.7em] text-foreground-400 text-center">Garúa no es un servicio oficial del SENAMHI. Los datos provienen de consultas públicas en su portal.</p>
       </footer>
     </div>
   );
