@@ -8,13 +8,19 @@ import {
 } from "./cache.controller";
 import { PeriodParams, RangeYearsParams, YearParams } from "../types/request";
 import { jsonToCsv } from "../utils/convert";
+import { Station } from "../types/station/station";
 import {
   MET_AUTOMATIC_HEADERS,
   MET_CONVENTIONAL_HEADERS,
   MeteorologicalData,
   MeteorologicalDataResponse,
-  Station,
-} from "../types/station";
+} from "../types/station/meteorologicalStation";
+import {
+  HYD_AUTOMATIC_HEADERS,
+  HYD_CONVENTIONAL_HEADERS,
+  HydrologicalData,
+  HydrologicalDataResponse,
+} from "../types/station/hydrologicalStation";
 
 export async function getSationData(req: Request, res: Response) {
   const { cod } = req.params;
@@ -49,16 +55,25 @@ export async function getDataByPeriod(req: Request, res: Response) {
 
     // Realizando consulta
     const data = await getDataByPeriodCache(station, year, month);
-    const response: MeteorologicalDataResponse[] = data.map((row) => {
-      const { type, ...rest } = row;
-      return rest;
-    });
+    const response: (MeteorologicalDataResponse | HydrologicalDataResponse)[] =
+      data.map((row) => {
+        const { type, ...rest } = row;
+        return rest;
+      });
 
     if (format === "csv") {
-      const headers =
-        station.status === "AUTOMATICA"
-          ? MET_AUTOMATIC_HEADERS
-          : MET_CONVENTIONAL_HEADERS;
+      let headers;
+      if (station.status === "AUTOMATICA") {
+        headers =
+          station.stationType === "M"
+            ? MET_AUTOMATIC_HEADERS
+            : HYD_AUTOMATIC_HEADERS;
+      } else {
+        headers =
+          station.stationType === "M"
+            ? MET_CONVENTIONAL_HEADERS
+            : HYD_CONVENTIONAL_HEADERS;
+      }
       const csv = jsonToCsv(response, headers);
       res.header("Content-Type", "text/csv");
       res.attachment(
@@ -105,10 +120,18 @@ export async function getDataByYear(req: Request, res: Response) {
       );
 
       // Header CSV
-      const headers =
-        station.status === "AUTOMATICA"
-          ? MET_AUTOMATIC_HEADERS
-          : MET_CONVENTIONAL_HEADERS;
+      let headers;
+      if (station.status === "AUTOMATICA") {
+        headers =
+          station.stationType === "M"
+            ? MET_AUTOMATIC_HEADERS
+            : HYD_AUTOMATIC_HEADERS;
+      } else {
+        headers =
+          station.stationType === "M"
+            ? MET_CONVENTIONAL_HEADERS
+            : HYD_CONVENTIONAL_HEADERS;
+      }
       res.write(`${headers.join(",")}\n`);
 
       // Comprobar año en cache
@@ -121,8 +144,14 @@ export async function getDataByYear(req: Request, res: Response) {
       // Finalizar respuesta
       if (!controller.signal.aborted) res.end();
     } else {
-      const data: MeteorologicalDataResponse[] | null =
-        await getDataByYearCache(station, year, false, controller.signal);
+      const data:
+        | (MeteorologicalDataResponse | HydrologicalDataResponse)[]
+        | null = await getDataByYearCache(
+        station,
+        year,
+        false,
+        controller.signal
+      );
       res.json(data);
     }
   } catch (error) {
@@ -157,16 +186,23 @@ export async function getDataByYearRange(req: Request, res: Response) {
     });
 
     if (format === "csv") {
-      await _handleCsvYearRangeResponse(res, station, startYear, endYear, controller);
+      await _handleCsvYearRangeResponse(
+        res,
+        station,
+        startYear,
+        endYear,
+        controller
+      );
     } else {
-      const data: MeteorologicalDataResponse[] | null =
-        await senamhiService.getDataByYearRange(
-          station,
-          startYear,
-          endYear,
-          false,
-          controller.signal
-        );
+      const data:
+        | (MeteorologicalDataResponse | HydrologicalDataResponse)[]
+        | null = await senamhiService.getDataByYearRange(
+        station,
+        startYear,
+        endYear,
+        false,
+        controller.signal
+      );
       res.json(data);
     }
   } catch (error) {
@@ -194,20 +230,24 @@ async function _handleCsvYearRangeResponse(
   );
 
   // Header CSV
-  const headers =
-    station.status === "AUTOMATICA"
-      ? MET_AUTOMATIC_HEADERS
-      : MET_CONVENTIONAL_HEADERS;
+  let headers;
+  if (station.status === "AUTOMATICA") {
+    headers =
+      station.stationType === "M"
+        ? MET_AUTOMATIC_HEADERS
+        : HYD_AUTOMATIC_HEADERS;
+  } else {
+    headers =
+      station.stationType === "M"
+        ? MET_CONVENTIONAL_HEADERS
+        : HYD_CONVENTIONAL_HEADERS;
+  }
   res.write(`${headers.join(",")}\n`);
 
   // Procesar año por año
   for (let year = startYear; year <= endYear; year++) {
     if (controller.signal.aborted) break;
-    const cached = await getDataByYearCache(
-      station,
-      year,
-      true
-    );
+    const cached = await getDataByYearCache(station, year, true);
     if (cached) {
       _writeCsvData(cached, res);
     } else {
@@ -220,16 +260,42 @@ async function _handleCsvYearRangeResponse(
 }
 
 // Formatea una fila de datos a CSV
-function _formatRowToCsv(row: MeteorologicalData): string {
-  if (row.type === "conventional") {
-    return `${row.year},${row.month},${row.day},${row.tempMax},${row.tempMin},${row.humidity},${row.precipitation}`;
-  } else {
-    return `${row.year},${row.month},${row.day},${row.hour},${row.temp},${row.precipitation},${row.humidity},${row.windDirection},${row.windSpeed}`;
+function _formatRowToCsv(row: (MeteorologicalData | HydrologicalData)): string {
+  const baseData = `${row.year},${row.month},${row.day}`;
+  
+  // Detect station type by checking specific properties
+  const isMeteorologicalConventional = 'tempMax' in row && 'tempMin' in row;
+  const isMeteorologicalAutomatic = 'temp' in row && 'windDirection' in row && 'windSpeed' in row;
+  const isHydrologicalConventional = 'riverlevel06' in row && 'riverlevel10' in row && 'riverlevel14' in row && 'riverlevel18' in row;
+  const isHydrologicalAutomatic = 'riverLevel' in row && !('riverlevel06' in row);
+
+  if (isMeteorologicalConventional) {
+    // Meteorological Conventional
+    const data = row as any;
+    return `${baseData},${data.tempMax ?? ''},${data.tempMin ?? ''},${data.humidity ?? ''},${data.precipitation ?? ''}`;
+  } 
+  else if (isMeteorologicalAutomatic) {
+    // Meteorological Automatic  
+    const data = row as any;
+    return `${baseData},${data.hour ?? ''},${data.temp ?? ''},${data.precipitation ?? ''},${data.humidity ?? ''},${data.windDirection ?? ''},${data.windSpeed ?? ''}`;
   }
+  else if (isHydrologicalConventional) {
+    // Hydrological Conventional
+    const data = row as any;
+    return `${baseData},${data.riverlevel06 ?? ''},${data.riverlevel10 ?? ''},${data.riverlevel14 ?? ''},${data.riverlevel18 ?? ''}`;
+  }
+  else if (isHydrologicalAutomatic) {
+    // Hydrological Automatic
+    const data = row as any;
+    return `${baseData},${data.hour ?? ''},${data.riverLevel ?? ''},${data.precipitation ?? ''}`;
+  }
+  
+  // Fallback (shouldn't happen with proper data)
+  throw new Error(`Tipo de estación no reconocido para los datos: ${JSON.stringify(row)}`);
 }
 
 // Escribe los datos en formato CSV
-function _writeCsvData(data: MeteorologicalData[], res: Response) {
+function _writeCsvData(data: (MeteorologicalData | HydrologicalData)[], res: Response) {
   data.forEach((row) => {
     const csvRow = _formatRowToCsv(row);
     res.write(`${csvRow}\n`);
@@ -255,7 +321,7 @@ async function _processYearDataToCsv(
   res: Response,
   signal?: AbortSignal
 ) {
-  const yearData: MeteorologicalDataResponse[] = [];
+  const yearData: (MeteorologicalDataResponse | HydrologicalDataResponse)[] = [];
 
   for (let month = 1; month <= 12; month++) {
     try {

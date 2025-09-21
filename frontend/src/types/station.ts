@@ -15,6 +15,7 @@ export interface StationBase {
   latitude: number;
   longitude: number;
   status: StatusStation;
+  stationType: StationType;
   department?: string;
   province?: string;
   district?: string;
@@ -23,7 +24,7 @@ export interface StationBase {
 }
 
 // Información para la búsqueda
-export interface StationSearch extends Pick<StationBase, "name" | "code"> {
+export interface StationSearch extends Pick<StationBase, "name" | "code" | "stationType"> {
   type: DataMode;
 }
 
@@ -34,13 +35,13 @@ export interface ResultsSearch {
 
 // Estación Meteorológica
 export interface MeteorologicalStation extends StationBase {
-  stationType: "METEOROLOGICAL";
+  stationType: "M";
   mode?: DataMode;
 }
 
 // Estación Hidrológica
 export interface HydrologicalStation extends StationBase {
-  stationType: "HYDROLOGICAL";
+  stationType: "H";
   mode?: DataMode;
 }
 

@@ -1,12 +1,14 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import qs from "qs"; // para serializar form-urlencoded
-import { Station, MeteorologicalData } from "../types/station";
+import { Station } from "../types/station/station";
 import { sleep } from "../utils/sleep";
 import { getDataByYearCache } from "../controllers/cache.controller";
 import { parseDateString } from "../utils/parsedDate";
 import config from "../config/config";
 import { concatenateUrlWithParams } from "../utils/url";
+import { MeteorologicalData } from "../types/station/meteorologicalStation";
+import { HydrologicalData } from "../types/station/hydrologicalStation";
 
 const getStationInfo = async (station: Station) => {
   try {
@@ -60,7 +62,7 @@ const getStationData = async (station: Station) => {
     const formData = qs.stringify({
       estaciones: station.code,
       CBOFiltro: `202501`, // Ej: 202503
-      t_e: "M",
+      t_e: station.stationType,
       estado: station.status,
       cod_old: station.codeOld,
     });
@@ -105,14 +107,14 @@ const getDataByPeriod = async (
   year: number,
   month: number,
   signal?: AbortSignal
-): Promise<MeteorologicalData[]> => {
+): Promise<(MeteorologicalData | HydrologicalData)[]> => {
   try {
     // Preparar datos para form-urlencoded
     const period = `${year.toString()}${month.toString().padStart(2, "0")}`;
     const formData = qs.stringify({
       estaciones: station.code,
       CBOFiltro: period, // Ej: 202503
-      t_e: "M",
+      t_e: station.stationType,
       estado: station.status,
       cod_old: station.codeOld,
     });
@@ -131,7 +133,7 @@ const getDataByPeriod = async (
     const $ = cheerio.load(html);
 
     // Extraer datos diarios
-    let dailyData: MeteorologicalData[] = [];
+    let dailyData: (MeteorologicalData | HydrologicalData)[] = [];
 
     let dataStartIndex = 1;
     if (station.status != "AUTOMATICA") {
@@ -147,31 +149,73 @@ const getDataByPeriod = async (
 
       if (!date) throw new Error(`Formato de fecha inválido: ${dateString}`);
 
-      if (station.status === "AUTOMATICA") {
-        dailyData.push({
-          type: "automatic",
-          year: date.year,
-          month: date.month,
-          day: date.day,
-          hour: cols.eq(1).text().trim() || "00:00",
-          temp: parseFloat(cols.eq(2).text().trim()) || 0.0,
-          precipitation: parseFloat(cols.eq(3).text().trim()) || 0.0,
-          humidity: parseFloat(cols.eq(4).text().trim()) || 0.0,
-          windDirection: parseFloat(cols.eq(5).text().trim()) || 0.0,
-          windSpeed: parseFloat(cols.eq(6).text().trim()) || 0.0,
-        });
-      } else {
-        dailyData.push({
-          type: "conventional",
-          year: date.year,
-          month: date.month,
-          day: date.day,
-          tempMax: parseFloat(cols.eq(1).text().trim()) || 0.0,
-          tempMin: parseFloat(cols.eq(2).text().trim()) || 0.0,
-          humidity: parseFloat(cols.eq(3).text().trim()) || 0.0,
-          precipitation: parseFloat(cols.eq(4).text().trim()) || 0.0,
-        });
+      // Define data mapping for different station configurations
+      const dataConfigs = {
+        'AUTOMATICA-M': {
+          type: 'automatic' as const,
+          fields: [
+            { key: 'hour', index: 1, type: 'string' as const, default: '00:00' },
+            { key: 'temp', index: 2, type: 'number' as const, default: 0.0 },
+            { key: 'precipitation', index: 3, type: 'number' as const, default: 0.0 },
+            { key: 'humidity', index: 4, type: 'number' as const, default: 0.0 },
+            { key: 'windDirection', index: 5, type: 'number' as const, default: 0.0 },
+            { key: 'windSpeed', index: 6, type: 'number' as const, default: 0.0 }
+          ]
+        },
+        'AUTOMATICA-H': {
+          type: 'automatic' as const,
+          fields: [
+            { key: 'hour', index: 1, type: 'string' as const, default: '00:00' },
+            { key: 'riverLevel', index: 2, type: 'number' as const, default: 0.0 },
+            { key: 'precipitation', index: 3, type: 'number' as const, default: 0.0 }
+          ]
+        },
+        'CONVENCIONAL-M': {
+          type: 'conventional' as const,
+          fields: [
+            { key: 'tempMax', index: 1, type: 'number' as const, default: 0.0 },
+            { key: 'tempMin', index: 2, type: 'number' as const, default: 0.0 },
+            { key: 'humidity', index: 3, type: 'number' as const, default: 0.0 },
+            { key: 'precipitation', index: 4, type: 'number' as const, default: 0.0 }
+          ]
+        },
+        'CONVENCIONAL-H': {
+          type: 'conventional' as const,
+          fields: [
+            { key: 'riverlevel06', index: 1, type: 'number' as const, default: 0.0 },
+            { key: 'riverlevel10', index: 2, type: 'number' as const, default: 0.0 },
+            { key: 'riverlevel14', index: 3, type: 'number' as const, default: 0.0 },
+            { key: 'riverlevel18', index: 4, type: 'number' as const, default: 0.0 }
+          ]
+        }
+      };
+
+      // Determine configuration key
+      const statusKey = station.status === "AUTOMATICA" ? "AUTOMATICA" : "CONVENCIONAL";
+      const configKey = `${statusKey}-${station.stationType}`;
+      const config = dataConfigs[configKey as keyof typeof dataConfigs];
+
+      if (!config) {
+        throw new Error(`Configuración no encontrada para: ${configKey}`);
       }
+
+      // Build data object dynamically
+      const dataPoint: any = {
+        type: config.type,
+        year: date.year,
+        month: date.month,
+        day: date.day
+      };
+
+      // Extract field values based on configuration
+      config.fields.forEach(field => {
+        const cellText = cols.eq(field.index).text().trim();
+        dataPoint[field.key] = field.type === 'number' 
+          ? (parseFloat(cellText) || field.default)
+          : (cellText || field.default);
+      });
+
+      dailyData.push(dataPoint);
     });
     console.log(
       `Se ha realizado consulta Estación: ${station.name}, Periodo: ${period}`
@@ -225,7 +269,7 @@ const getDataByYear = async (
       year === currentYear
         ? Array.from({ length: currentMonth }, (_, i) => i + 1)
         : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    let data: MeteorologicalData[] = [];
+    let data: (MeteorologicalData | HydrologicalData)[] = [];
     for (const month of months) {
       if (signal?.aborted) break;
       const dataMonth = await getDataByPeriod(station, year, month, signal);
@@ -246,7 +290,7 @@ const getDataByYearRange = async (
   modeCache: boolean = false,
   signal?: AbortSignal
 ) => {
-  let result: MeteorologicalData[] = [];
+  let result: (MeteorologicalData | HydrologicalData)[] = [];
   for (let year = startYear; year <= endYear; year++) {
     if (signal?.aborted) break;
     const yearData = await getDataByYearCache(station, year, modeCache, signal);

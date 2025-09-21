@@ -1,5 +1,5 @@
 import estaciones from "../data/estaciones";
-import { Station, StationSearch } from "../types/station";
+import { Station, StationSearch } from "../types/station/station";
 import { capitalizeWords } from "../utils/string";
 
 export function getAllStations(): Station[] {
@@ -19,13 +19,14 @@ export function searchStationsByName(
   const term = name.toString().toLowerCase();
   const searchData = estaciones
     .filter(
-      (e) => e.name.toLowerCase().startsWith(term) && e.stationType === "M"
+      (e) => e.name.toLowerCase().includes(term)
     )
     .slice(0, limit);
   const dataResponse: StationSearch[] = searchData.map((item) => ({
     name: capitalizeWords(item.name),
     code: item.code,
     type: item.status == "AUTOMATICA" ? "AUTOMATIC" : "CONVENTIONAL",
+    stationType: item.stationType
   }));
   return dataResponse;
 }
