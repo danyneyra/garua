@@ -2,9 +2,26 @@
   <a href="https://garua.app/">
     <img alt="refine logo" src="https://www.garua.app/garua-logo.svg">
   </a>
-  <p>Es una herramienta sencilla pero muy útil para descargar datos meteorológicos oficiales del <strong>SENAMHI</strong>.  
+  <p>Es una herramienta sencilla pero muy útil para descargar datos hidrometeorológicos oficiales del <strong>SENAMHI</strong>.  
   </p>
 </div>
+
+> **Un proyecto de [Dany Daniel](https://github.com/danyneyra)** - Freelance full-stack Dev | Support IT
+
+[![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-19.0.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![HeroUI](https://img.shields.io/badge/HeroUI-000000?style=for-the-badge&logo=heroui&logoColor=white)](https://axios-http.com/)
+[![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)](https://axios-http.com/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
+
+### 🌐 Sígueme en mis redes sociales
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/dannydanieln)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/dannydanieln)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/danydanieln)
+
+---
 
 Mientras el portal de SENAMHI solo permite descargas **mes a mes**, con Garúa puedes:
 
@@ -17,10 +34,10 @@ De esta forma obtienes toda la información lista en un único CSV, sin tener qu
 
 ## ✨ Características
 
-- **Buscador de estaciones meteorológicas**: ingresa el nombre y selecciona la estación que necesites.
+- **Buscador de estaciones meteorológicas e hidrológicas**: ingresa el nombre y selecciona la estación que necesites.
 - **Mini mapa interactivo (Leaflet)**: visualiza la ubicación exacta de la estación con coordenadas.
 - **Detalles de la estación**:
-  - Tipo de estación (por ahora meteorológica, pronto hidrológica)
+  - Tipo de estación: ⛅ Metereológica | 💧 Hidrológica
   - Categoría: Automática o Convencional
   - Nombre y código de la estación
   - Ubicación: Departamento, Provincia, Distrito
@@ -65,9 +82,21 @@ Garúa no es un servicio oficial del SENAMHI. Los datos provienen de consultas p
 
 - [**SENAMHI - Servicio Nacional de Meteorología e Hidrología del Perú**](https://www.senamhi.gob.pe/)
 
+## 👨‍💻 Autor
+
+**Dany Daniel** - [@danyneyra](https://github.com/danyneyra)
+
+Soy un apasionado de la tecnología, siempre curioso, explorando nuevas fronteras, ya sea en el desarrollo de software, soporte de TI o electrónica.
+
+
+### 💖 Apoyo
+
+Si te gusta este proyecto, puedes apoyar me:
+
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/danydaniel)
+
+---
 
 <div align="center">
-</br>
-</br>
-Creado con 💜 por <a href="https://github.com/danyneyra">@danyneyra</a>
+Creado con 💜 por <a href="https://github.com/danyneyra">Dany Daniel</a>
 </div>

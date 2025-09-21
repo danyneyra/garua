@@ -1,15 +1,15 @@
 import cache from "../config/cache";
 import {
-  MeteorologicalData,
-  MeteorologicalDataResponse,
   Station,
-} from "../types/station";
+} from "../types/station/station";
 import senamhiService from "../services/senamhi.service";
+import { MeteorologicalData, MeteorologicalDataResponse } from "../types/station/meteorologicalStation";
+import { HydrologicalData, HydrologicalDataResponse } from "../types/station/hydrologicalStation";
 
 export async function saveDataByYearCache(
   station: Station,
   year: number,
-  data: MeteorologicalDataResponse[]
+  data: (MeteorologicalDataResponse | HydrologicalDataResponse)[]
 ) {
   // Crear key
   const key = `${station.code}_${year}`;
@@ -26,7 +26,7 @@ export async function getDataByPeriodCache(
   const key = `${station.code}_${year}${month}`;
 
   // Revisar información en caché
-  const dataCache = cache.get<MeteorologicalData[]>(key);
+  const dataCache = cache.get<(MeteorologicalData | HydrologicalData)[]>(key);
   if (dataCache) {
     console.log(`[CACHE] hit: ${key}`);
     return dataCache;
@@ -50,7 +50,7 @@ export async function getDataByYearCache(
   const key = `${station.code}_${year}`;
 
   // Revisar información en caché
-  const dataCache = cache.get<MeteorologicalData[]>(key);
+  const dataCache = cache.get<(MeteorologicalData | HydrologicalData)[]>(key);
   if (dataCache) {
     console.log(`[CACHE] hit: ${key}`);
     return dataCache;

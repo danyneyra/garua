@@ -3,3 +3,14 @@
   width: 100%;
   height: 300px; /* altura del mapa pequeño */
 }
+
+.floatingchat-container-wrap {
+  right: 20px !important;
+  bottom: 40px !important;
+  left: auto !important;
+}
+.floating-chat-kofi-popup-iframe {
+  right: 20px !important;
+  bottom: 100px !important;
+  left: auto !important;
+}

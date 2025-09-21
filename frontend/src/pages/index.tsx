@@ -3,7 +3,11 @@ import { Listbox, ListboxItem } from "@heroui/listbox";
 import { Tabs, Tab } from "@heroui/tabs";
 import { useMemo, useRef, useState } from "react";
 
-import { SearchIcon, WeatherIcon } from "@/components/icons";
+import {
+  Raindrops,
+  SearchIcon,
+  WeatherPartlyCloudy,
+} from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useDebouncedSearch } from "@/features/search/hooks/useSearch";
 import { Station, StationDataYears } from "@/types/station";
@@ -89,12 +93,12 @@ export default function IndexPage() {
           }`}
         >
           <h1 className="text-4xl font-bold">
-            Descarga datos meteorológicos oficiales del SENAMHI sin
+            Descarga datos hidrometeorológicos oficiales del SENAMHI sin
             complicaciones
           </h1>
           <p className="px-6 md:px-0 text-foreground-500">
             Descarga información oficial del SENAMHI en un solo archivo, por año
-            o rangos de años, de cualquier estación metereólogica.
+            o rangos de años, de cualquier estación metereológica o hidrológica.
           </p>
         </div>
       </section>
@@ -104,7 +108,7 @@ export default function IndexPage() {
             ref={inputRef}
             autoComplete="off"
             className="w-full md:min-w-3xl"
-            label="Buscar estación"
+            placeholder="Buscar estación meteorológica o hidrológica por nombre"
             radius="full"
             startContent={<SearchIcon />}
             value={query}
@@ -129,7 +133,16 @@ export default function IndexPage() {
               >
                 {data?.results?.map((item) => (
                   <ListboxItem key={item.code} textValue={item.name}>
-                    {item.name} - {item.code}
+                    <div className="flex gap-2 items-center">
+                      {item.stationType === "M" ? (
+                        <WeatherPartlyCloudy className="opacity-70" />
+                      ) : (
+                        <Raindrops className="opacity-70" />
+                      )}
+                      <span className="font-semibold">
+                        {item.name} - {item.code}
+                      </span>
+                    </div>
                   </ListboxItem>
                 ))}
               </Listbox>
@@ -154,9 +167,13 @@ export default function IndexPage() {
           <>
             <div className="flex flex-col bg-[#C7CDFF] w-full min-w-[320px] md:max-w-3xl gap-1 items-start py-3 px-6 md:px-4 rounded-b-[3rem] rounded-t-2xl">
               <div className="flex flex-col gap-4 md:flex-row w-full md:justify-around items-start">
-                <div className="flex flex-col gap-1 pt-2">
-                  <WeatherIcon />
-                  <div className="flex rounded-full w-fit items-center text-center text-[0.75em] bg-white text-black px-2 py-1 gap-1">
+                <div className="flex flex-col gap-2 pt-2">
+                  <div className="flex rounded-full w-fit items-center justify-center text-center text-[0.75em] bg-white text-black px-2 py-1 gap-1">
+                    {stationQuery.stationType === "M" ? (
+                      <WeatherPartlyCloudy size={18}/>
+                    ) : (
+                      <Raindrops size={18} />
+                    )}
                     <span className="font-semibold">
                       {stationQuery.status === "AUTOMATICA"
                         ? "Automática"

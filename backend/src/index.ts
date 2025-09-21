@@ -24,7 +24,7 @@ app.use(express.json());
 app.use("/api/estaciones", stationsRoutes);
 app.use("/api/senamhi", senamhiRoutes);
 
-const PORT = config.server.port || 4000;
+const PORT = config.server.port || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Backend listening on http://localhost:${PORT}`);
 });

@@ -17,14 +17,14 @@ export default function DefaultLayout({
         <Link
           isExternal
           className="flex items-center gap-1 text-current"
-          href="https://github.com/danyneyra/"
+          href="https://github.com/danyneyra"
           title="Garua"
         >
           <span className="text-default-600">Desarrollado con </span>
           <HeartFilledIcon className="text-[#6a7cce]" />
           <p className="text-[#6a7cce]">Dany Daniel</p>
         </Link>
-        <p className="text-[0.7em] text-foreground-400 text-center">Garúa no es un servicio oficial del SENAMHI. Los datos provienen de consultas públicas en su portal.</p>
+        <p className="text-[0.7em] text-foreground-400 text-center">Garúa no es un servicio oficial del <a href="https://www.senamhi.gob.pe/?p=estaciones" target="_blank" rel="noopener noreferrer" className="text-[#6a7cce]">SENAMHI</a>. Los datos provienen de consultas públicas en su portal.</p>
       </footer>
     </div>
   );
