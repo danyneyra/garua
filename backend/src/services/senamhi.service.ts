@@ -132,6 +132,8 @@ const getDataByPeriod = async (
     // Parseamos HTML
     const $ = cheerio.load(html);
 
+    console.log(`Scraping SENAMHI: ${html}`);
+
     // Extraer datos diarios
     let dailyData: (MeteorologicalData | HydrologicalData)[] = [];
 
@@ -141,6 +143,14 @@ const getDataByPeriod = async (
     }
 
     const rows = $("#dataTable tr");
+
+    // Comprobar si hay datos
+    if (rows.length === 0) {
+      // Lanzar error si no hay datos
+      throw new Error(
+        `No se pudieron obtener datos para la estación ${station.name} en el periodo ${period}`
+      );
+    }
 
     rows.slice(dataStartIndex).each((_, row) => {
       const cols = $(row).find("td");
