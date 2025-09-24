@@ -108,6 +108,7 @@ export async function getDataByYear(req: Request, res: Response) {
     const controller = new AbortController();
     req.on("close", () => {
       controller.abort();
+      console.log(`Cliente desconectado durante descarga de datos del año ${year} para estación ${station.code}`);
     });
 
     if (format === "csv") {
@@ -183,6 +184,7 @@ export async function getDataByYearRange(req: Request, res: Response) {
     const controller = new AbortController();
     req.on("close", () => {
       controller.abort();
+      console.log(`Cliente desconectado durante descarga de rango ${startYear}-${endYear} para estación ${station.code}`);
     });
 
     if (format === "csv") {
@@ -246,12 +248,26 @@ async function _handleCsvYearRangeResponse(
 
   // Procesar año por año
   for (let year = startYear; year <= endYear; year++) {
-    if (controller.signal.aborted) break;
-    const cached = await getDataByYearCache(station, year, true);
-    if (cached) {
-      _writeCsvData(cached, res);
-    } else {
-      await _processYearDataToCsv(station, year, res, controller.signal);
+    try {
+      if (controller.signal.aborted) {
+        // Escribir mensaje de cancelación en el archivo CSV
+        const cancelMessage = `\n# CANCELADO: Descarga interrumpida por el usuario en el año ${year}`;
+        const timestampLine = `\n# TIMESTAMP: ${new Date().toISOString()}`;
+        res.write(cancelMessage);
+        res.write(timestampLine);
+        break;
+      }
+      
+      const cached = await getDataByYearCache(station, year, true);
+      if (cached) {
+        _writeCsvData(cached, res);
+      } else {
+        await _processYearDataToCsv(station, year, res, controller.signal);
+      }
+    } catch (err) {
+      console.error(`Error procesando año ${year}:`, err);
+      handleStreamError(err, year, res);
+      return;
     }
   }
 
@@ -303,13 +319,30 @@ function _writeCsvData(data: (MeteorologicalData | HydrologicalData)[], res: Res
 }
 
 // Maneja errores durante el streaming de datos
-function handleStreamError(err: unknown, year: number, res: Response) {
+function handleStreamError(err: unknown, year: number, res: Response, month?: number) {
+  const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+  const monthInfo = month ? ` mes ${month}` : '';
+  
   if (!res.headersSent) {
     res.status(500).json({
       error: `No se pudo completar la descarga de datos del año ${year}.`,
-      details: (err as Error).message,
+      details: errorMessage,
     });
   } else {
+    // Escribir error directamente en el archivo CSV que se está enviando
+    const errorLine = `\n# ERROR: No se pudieron obtener datos del año ${year}${monthInfo}`;
+    const detailsLine = `\n# DETALLES: ${errorMessage}`;
+    const timestampLine = `\n# TIMESTAMP: ${new Date().toISOString()}`;
+    
+    try {
+      res.write(errorLine);
+      res.write(detailsLine);
+      res.write(timestampLine);
+      res.write('\n# La descarga se interrumpió debido al error anterior.\n');
+    } catch (writeError) {
+      console.error('Error escribiendo mensaje de error al stream:', writeError);
+    }
+    
     res.end();
   }
 }
@@ -325,7 +358,15 @@ async function _processYearDataToCsv(
 
   for (let month = 1; month <= 12; month++) {
     try {
-      if (signal?.aborted) break;
+      if (signal?.aborted) {
+        // Escribir mensaje de cancelación en el archivo CSV
+        const cancelMessage = `\n# CANCELADO: Descarga interrumpida por el usuario`;
+        const timestampLine = `\n# TIMESTAMP: ${new Date().toISOString()}`;
+        res.write(cancelMessage);
+        res.write(timestampLine);
+        break;
+      }
+      
       const monthData = await senamhiService.getDataByPeriod(
         station,
         year,
@@ -337,7 +378,7 @@ async function _processYearDataToCsv(
       yearData.push(...monthData);
     } catch (err) {
       console.error(`Error al obtener datos de ${year}/${month}:`, err);
-      handleStreamError(err, year, res);
+      handleStreamError(err, year, res, month);
       return;
     }
   }
