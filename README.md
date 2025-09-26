@@ -6,6 +6,21 @@
   </p>
 </div>
 
+> [!WARNING]
+> **⚠️ SERVICIO TEMPORALMENTE NO DISPONIBLE**
+> 
+> El portal oficial de SENAMHI ha implementado **Cloudflare Turnstile** (sistema anti-bot), lo que impide el funcionamiento del scraping automatizado que utiliza Garúa para extraer los datos.
+> 
+> **Motivo técnico:** Cloudflare Turnstile bloquea las peticiones automatizadas para prevenir bots, afectando el método de extracción de datos de este servicio.
+> 
+> **Estado actual:** Se está evaluando si implementar métodos alternativos compatibles con las nuevas medidas de seguridad de SENAMHI.
+> 
+> **Alternativas temporales:**
+> - Accede directamente al [portal oficial de SENAMHI](https://www.senamhi.gob.pe/?p=estaciones) 
+> - Descarga manual mes por mes desde el sitio oficial
+> - Para consultas urgentes, contacta directamente con SENAMHI
+>
+
 > **Un proyecto de [Dany Daniel](https://github.com/danyneyra)** - Freelance full-stack Dev | Support IT
 
 [![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
