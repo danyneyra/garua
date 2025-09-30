@@ -16,6 +16,7 @@
 > **Estado actual:** Se está evaluando si implementar métodos alternativos compatibles con las nuevas medidas de seguridad de SENAMHI.
 > 
 > **Alternativas temporales:**
+> - [Senamhi Scrapper](https://github.com/danyneyra/senamhi-scraper), es un script para descargar data consolidada en un solo archivo por consultas de mes y año, año y rango de años.
 > - Accede directamente al [portal oficial de SENAMHI](https://www.senamhi.gob.pe/?p=estaciones) 
 > - Descarga manual mes por mes desde el sitio oficial
 > - Para consultas urgentes, contacta directamente con SENAMHI

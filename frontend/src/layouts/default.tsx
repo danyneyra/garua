@@ -12,7 +12,7 @@ export default function DefaultLayout({
       <Navbar />
       <div className="w-full h-14 bg-red-400 top-0 left-0 items-center justify-center flex flex-col text-center">
         <p className="text-white">
-          ⚠️ Servicio de descarga temporalmente no disponible.
+          ⚠️ Servicio de descarga temporalmente no disponible. Alternativa temporal <a href="https://github.com/danyneyra/senamhi-scraper">aquí</a>.
         </p>
       </div>
       <main className="font-sans container mx-auto max-w-7xl px-6 flex-grow pt-4">
