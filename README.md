@@ -16,6 +16,7 @@ Este proyecto permite **descargar datos hidrometeorológicos históricos** en ar
 - [📁 Estructura del Proyecto](#-estructura-del-proyecto)
 - [🚀 Instalación](#-instalación)
 - [⚡ Uso Rápido](#-uso-rápido)
+- [🖥️ Interfaz de Línea de Comandos (CLI)](#️-interfaz-de-línea-de-comandos-cli)
 - [💡 Ejemplos de Uso](#-ejemplos-de-uso)
 - [🔄 Flujo de Ejecución](#-flujo-de-ejecución)
 - [🛠️ Configuración Avanzada](#️-configuración-avanzada)
@@ -27,9 +28,12 @@ Este proyecto permite **descargar datos hidrometeorológicos históricos** en ar
 
 ### 🚀 Funcionalidades Principales
 - 🛡️ **Bypass automático de Cloudflare Turnstile** - Acceso garantizado sin intervención manual
+- ⚡ **Intercepción de red via CDP** - Captura directa de respuestas POST sin esperar recarga visual, lo que hace el scraping significativamente más rápido
 - 🔄 **Tres modos de consulta flexibles** - Month, Year, Period con opciones avanzadas
+- 🔍 **Búsqueda de estaciones inteligente** - Busca por código exacto o por nombre parcial desde el CLI o en la interfaz interactiva
 - 📊 **Exportación inteligente** - CSV organizados con nombres descriptivos
-- 🎯 **Interfaz interactiva amigable** - Validaciones en tiempo real
+- 🖥️ **CLI con argumentos** - Ejecuta consultas completas en una sola línea sin pasar por el flujo interactivo
+- 🔁 **Reintentos automáticos** - Ante fallos transitorios (Turnstile, timeout de red) reintenta automáticamente
 - 📋 **Modelos Pydantic tipados** - Validación automática de datos
 - 🔧 **Configuración centralizada** - Personalización fácil en `settings.py`
 
@@ -66,7 +70,7 @@ senamhi_scraper/
 ├── 📋 requirements.txt          # 📦 Dependencias del proyecto
 ├── 📖 README.md                # 📚 Documentación completa
 │
-├── 📁 src/                      # 🏗️ Código fuente modular
+├── 📁 src/                      # Código fuente modular
 │   ├── 🚨 exceptions.py        # Excepciones personalizadas
 │   ├── 🎯 query_handler.py     # Manejador principal de consultas
 │   ├── 🌐 html_utils.py        # Utilidades para parsing HTML
@@ -122,49 +126,95 @@ pip install -r requirements.txt
 
 ## ⚡ Uso Rápido
 
-### Método 1: Script Interactivo (Recomendado)
+### Método 1: CLI (Recomendado para consultas rápidas)
 ```bash
+# Búsqueda de estación por nombre
+python main.py --search SIHUAS
+
+# Consulta completa de un mes
+python main.py -s 108047 -m month -y 2024 --month 9
+
+# Consulta de año completo (consolidado)
+python main.py -s 108047 -m year -y 2024
+
+# Consulta de periodo con archivos individuales
+python main.py -s 108047 -m period --start 2020 --end 2025 --individual
+```
+
+### Método 2: Modo Interactivo
+```bash
+python main.py
+# ó
 python run_scraper.py
 ```
 
-### Método 2: Script Principal
+## 🖥️ Interfaz de Línea de Comandos (CLI)
+
+El script `main.py` acepta argumentos para ejecutar consultas sin pasar por el flujo interactivo. Todos los parámetros son opcionales: los que no se provean se preguntarán de forma interactiva.
+
+### Referencia de argumentos
+
+| Argumento | Corto | Tipo | Descripción |
+|---|---|---|---|
+| `--search QUERY` | `-S` | `str` | Busca estaciones por código exacto o nombre parcial y las lista. **No inicia el scraping.** |
+| `--station CÓDIGO` | `-s` | `str` | Código interno de la estación (ej: `108047`). |
+| `--mode MODO` | `-m` | `str` | Modo de consulta: `month` \| `year` \| `period`. |
+| `--year AÑO` | `-y` | `int` | Año (requerido para `month` y `year`). |
+| `--month MES` | | `int` | Mes 1-12 (solo para `--mode month`). |
+| `--start AÑO` | | `int` | Año inicial (solo para `--mode period`). |
+| `--end AÑO` | | `int` | Año final (solo para `--mode period`). |
+| `--individual` | `-i` | flag | Genera un CSV por cada mes en lugar de uno consolidado. |
+| `--output DIR` | `-o` | `str` | Directorio de salida (por defecto: el definido en `settings.py`). |
+
+### 🔍 Búsqueda de Estaciones
+
+La búsqueda funciona tanto por **código exacto** como por **nombre parcial** (insensible a mayúsculas):
+
 ```bash
-python main.py
+# Búsqueda por nombre parcial
+python main.py --search SIHUAS
+python main.py --search "san marcos"
+
+# Búsqueda por código exacto
+python main.py --search 108047
+
+# Salida de ejemplo:
+# #    NOMBRE                         TIPO           CAT    ESTADO     CÓDIGO
+# ---------------------------------------------------------------------------
+# 1    SIHUAS                         METEOROLOGICA  M      ACTIVA     108047
+# Total: 1 estación(es) encontrada(s).
 ```
+
+También puedes buscar estaciones en el modo interactivo: cuando el scraper pide el código de estación puedes ingresar el nombre y se mostrarán los resultados coincidentes.
 
 ## 💡 Ejemplos de Uso
 
-### Consultar un mes específico
-```
-Modo: 1 (Month)
-Año: 2024
-Mes: 9
-→ Genera: output/TICAPAMPA-202409.csv
+### Via CLI
+
+```bash
+# Mes específico
+python main.py -s 108047 -m month -y 2024 --month 9
+# → output/csv/SIHUAS/SIHUAS-202409.csv
+
+# Año completo consolidado
+python main.py -s 108047 -m year -y 2024
+# → output/csv/SIHUAS/SIHUAS-2024.csv
+
+# Año completo con archivos por mes
+python main.py -s 108047 -m year -y 2024 --individual
+# → output/csv/SIHUAS/SIHUAS-202401.csv, SIHUAS-202402.csv, ...
+
+# Periodo consolidado
+python main.py -s 108047 -m period --start 2020 --end 2025
+# → output/csv/SIHUAS/SIHUAS-2020-2025.csv
 ```
 
-### Consultar año completo (archivos separados)
-```
-Modo: 2 (Year)
-Año: 2024
-¿Archivo único?: n
-→ Genera: output/TICAPAMPA-202401.csv, TICAPAMPA-202402.csv, etc.
-```
+### Via Modo Interactivo
 
-### Consultar año completo (archivo consolidado)
 ```
-Modo: 2 (Year)
-Año: 2024
-¿Archivo único?: s
-→ Genera: output/TICAPAMPA-2024.csv
-```
-
-### Consultar periodo (archivo consolidado)
-```
-Modo: 3 (Period)
-Año inicial: 2020
-Año final: 2025
-¿Archivo único?: s
-→ Genera: output/TICAPAMPA-2020-2025.csv
+Modo: 1 (Month)  → Pregunta año y mes
+Modo: 2 (Year)   → Pregunta año y si desea consolidado
+Modo: 3 (Period) → Pregunta año inicial, año final y si desea consolidado
 ```
 
 ### 📊 Casos de Uso Comunes
@@ -172,21 +222,21 @@ Año final: 2025
 #### 🌡️ Análisis de Tendencias Climáticas
 ```bash
 # Descargar últimos 10 años para análisis de tendencias
-Modo: 3 (Period) | Años: 2015-2024 | Consolidado: Sí
+python main.py -s 108047 -m period --start 2015 --end 2024
 # Resultado: Archivo único con datos históricos completos
 ```
 
 #### 📈 Estudios de Variabilidad Estacional
 ```bash
-# Descargar año completo en archivos separados
-Modo: 2 (Year) | Año: 2024 | Consolidado: No
+# Descargar año completo en archivos separados por mes
+python main.py -s 108047 -m year -y 2024 --individual
 # Resultado: 12 archivos CSV (uno por mes)
 ```
 
 #### 🔍 Verificación de Datos Específicos
 ```bash
 # Consultar un mes particular para validación
-Modo: 1 (Month) | Año: 2024 | Mes: 09
+python main.py -s 108047 -m month -y 2024 --month 9
 # Resultado: Datos específicos de septiembre 2024
 ```
 
@@ -211,58 +261,55 @@ Consolida toda la información en un solo archivo:
 
 1. **Inicialización**: Configuración del navegador y parámetros
 2. **Navegación**: Acceso a la página y resolución de Cloudflare
-3. **Configuración**: Clic en pestaña de tabla y localización de iframe
-4. **Extracción**: Obtención de opciones del select
-5. **Filtrado**: Aplicación de criterios según modo de consulta
-6. **Procesamiento**: Iteración sobre opciones filtradas
-7. **Exportación**: Generación de archivos CSV
-8. **Finalización**: Limpieza y cierre del navegador
-
-## Manejo de Errores
-
-El sistema incluye manejo robusto de errores:
-- **Timeouts configurables** para elementos web
-- **Reintentos automáticos** para operaciones fallidas
-- **Validación de datos** antes del procesamiento
+3. **Configuración CDP**: Habilitación del monitoreo de red para interceptar respuestas POST
+4. **Preparación**: Clic en la pestaña de tabla y descarte del POST inicial de carga
+5. **Extracción**: Obtención de opciones del select `CBOFiltro`
+6. **Filtrado**: Aplicación de criterios según modo de consulta (month / year / period)
+7. **Procesamiento**: Por cada opción (mes), se cambia el select y se captura directamente la respuesta del endpoint via CDP — sin esperar recarga visual del DOM
+8. **Reintentos**: Si una opción falla, se reintenta hasta `MAX_RETRIES` veces con pausa de `RETRY_SLEEP` segundos
+9. **Rate limiting**: Pausa aleatoria entre meses (`JITTER_MIN`–`JITTER_MAX` s) y pausa extra al cambiar de año (`YEAR_BOUNDARY_SLEEP` s)
+10. **Exportación**: Generación de archivos CSV individuales o consolidados
+11. **Finalización**: Limpieza y cierre del navegador
 
 ## 🔧 Troubleshooting
 
 ### Errores Comunes
 
-#### 🚫 "Iframe contenedor no encontrado"
+#### 🚫 "Select CBOFiltro no encontrado"
 ```bash
 # Soluciones:
 - Verificar conexión a internet estable
-- Revisar si SENAMHI cambió la estructura del sitio
+- Confirmar que la estación tiene datos disponibles
+- Verificar código de estación en data/estaciones.json (usa --search para buscarlo)
 - Aumentar timeout en settings.py: PAGE_TIMEOUT = 45
 - Verificar que Cloudflare se resolvió correctamente
 ```
 
-#### 🚫 "Select CBOFiltro no encontrado" 
+#### 🚫 "No se encontró table#dataTable en la respuesta del endpoint"
 ```bash
 # Soluciones:
-- Confirmar que la estación tiene datos disponibles
-- Verificar código de estación en data/estaciones.json
-- Revisar consola del navegador para errores JavaScript
-- Probar con una estación diferente
+- Verificar que el año/periodo existe en los datos de la estación
+- Probar con un rango de fechas más amplio
+- Revisar si SENAMHI cambió la estructura del sitio
 ```
 
-#### 🚫 "No se encontraron opciones para los criterios"
+#### 🚫 "No se encontró ninguna estación con el código '...'"
+```bash
+# Solución: busca el código correcto con --search
+python main.py --search NOMBRE_ESTACION
+```
+
+#### 🚫 Timeout esperando respuesta CDP
 ```bash
 # Soluciones:
-- Verificar que el año/periodo existe en los datos
-- Consultar años disponibles primero
-- Revisar formato de fecha (YYYYMM)
-- Probar con un rango de fechas más amplio
+- Aumentar TIMEOUT_SECONDS en settings.py (ej: 45)
+- Verificar estabilidad de la conexión a internet
+- El servidor de SENAMHI puede estar lento; aumentar RETRY_SLEEP = 10.0
 ```
 
 #### 🚫 Errores de Validación Pydantic
 ```bash
-# Ejemplos:
-ValidationError: Latitude must be between -90 and 90
-ValidationError: El código de estación no puede estar vacío
-
-# Solución: Verificar datos de entrada según los modelos
+# Solución: Verificar datos de entrada según los modelos definidos en src/models/
 ```
 
 ## ⚠️ Limitaciones
@@ -275,22 +322,36 @@ ValidationError: El código de estación no puede estar vacío
 
 ## 🛠️ Configuración Avanzada
 
-### Personalizar settings.py
+Todos los parámetros de comportamiento se centralizan en `settings.py`:
+
 ```python
-# Timeouts personalizados
-PAGE_TIMEOUT = 45        # Tiempo de carga de página
-ELEMENT_TIMEOUT = 15     # Tiempo de espera de elementos
-POLL_INTERVAL = 0.3      # Intervalo de polling
+# ── Timeouts ──────────────────────────────────────────────────────────────────
+PAGE_TIMEOUT = 30        # Segundos de espera máxima para la carga de página
+ELEMENT_TIMEOUT = 10     # Segundos de espera para localizar elementos en el DOM
+TIMEOUT_SECONDS = 30     # Timeout general para captura de respuestas POST via CDP
 
-# Directorios personalizados
-OUTPUT_DIR = "mi_output"
-CSV_DIR = "mi_output/datos_csv"
-LOGS_DIR = "mi_output/registros"
+# ── Rate limiting (simula comportamiento humano, reduce riesgo de detección) ──
+JITTER_MIN = 0.3         # Segundos mínimos de pausa entre cada mes consultado
+JITTER_MAX = 0.9         # Segundos máximos de pausa entre cada mes consultado
+YEAR_BOUNDARY_SLEEP = 1.5  # Pausa extra (segundos) al cambiar de año
 
-# CSV personalizado
-CSV_SEPARATOR = ","       # Cambiar a coma si prefieres
-CSV_ENCODING = "utf-8"   # Encoding de archivos
+# ── Reintentos ante fallos transitorios ───────────────────────────────────────
+MAX_RETRIES = 2          # Número de reintentos antes de marcar una opción como fallida
+RETRY_SLEEP = 5.0        # Segundos de espera entre reintentos
+
+# ── Archivos de salida ────────────────────────────────────────────────────────
+CSV_SEPARATOR = ";"      # Separador de columnas en los CSV generados
+CSV_ENCODING = "utf-8"   # Encoding de los archivos CSV
+CSV_DIR = "output/csv"   # Directorio raíz de salida
 ```
+
+### Ajuste de velocidad vs. seguridad
+
+| Configuración | Valores conservadores | Valores agresivos |
+|---|---|---|
+| `JITTER_MIN` / `JITTER_MAX` | `1.0` / `2.5` | `0.1` / `0.5` |
+| `YEAR_BOUNDARY_SLEEP` | `3.0` | `0.5` |
+| `MAX_RETRIES` | `3` | `1` |
 
 ## 📝 Notas adicionales
 
