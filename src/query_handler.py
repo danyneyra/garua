@@ -4,7 +4,7 @@ import re
 import os
 from src.html_utils import extract_select_options, html_table_to_csv
 from src.models.station import Station
-from src.station_service import find_station_by_code
+from src.station_service import find_station_by_code, search_stations_by_name
 
 class QueryModeHandler:
     """
@@ -177,132 +177,238 @@ class CSVManager:
 
 def get_station_code() -> Station | None:
     """
-    Solicita al usuario el código de la estación meteorológica
+    Solicita al usuario el código o nombre de la estación meteorológica.
+    Primero intenta coincidencia exacta por código; si no encuentra, ofrece
+    búsqueda interactiva por nombre con una lista numerada de resultados.
     """
     while True:
         print("\n" + "="*50)
-        print("🔍 INGRESE EL CÓDIGO DE LA ESTACIÓN")
-        code = input("Código (ejemplo: 472D30C8): ").strip()
-        
-        if code == "":
+        print("🔍 INGRESE EL CÓDIGO O NOMBRE DE LA ESTACIÓN")
+        entry = input("Código o nombre (ej: 472D30C8 o SIHUAS): ").strip()
+
+        if not entry:
             continue
 
-        station = find_station_by_code(code)
-        return station
+        # 1. Búsqueda exacta por código
+        station = find_station_by_code(entry)
+        if station:
+            return station
 
-def get_user_query_mode(filename: str) -> Dict:
-    """
-    Solicita al usuario el modo de consulta
-    """
-    print("\n" + "="*50)
-    print("🔍 SELECCIONA EL MODO DE CONSULTA")
-    print("="*50)
-    print("1. Month  - Descargar un mes específico (YYYY-MM)")
-    print("2. Year   - Descargar todo un año")
-    print("3. Period - Descargar un periodo de años (YYYY-YYYY)")
-    print("="*50)
-    
-    while True:
-        mode = input("Ingresa el número del modo (1-3): ").strip()
-        
-        if mode == "1":
-            return get_month_params(filename)
-        elif mode == "2":
-            return get_year_params(filename)
-        elif mode == "3":
-            return get_period_params(filename)
-        else:
-            print(f"{settings.ERROR} Opción inválida. Por favor ingresa 1, 2 o 3.")
+        # 2. Búsqueda por nombre
+        matches = search_stations_by_name(entry)
 
-def get_month_params(filename: str) -> Dict:
+        if not matches:
+            print(f"{settings.ERROR} No se encontró ninguna estación con el código o nombre '{entry}'.")
+            retry = input("¿Desea buscar de nuevo? (s/n): ").strip().lower()
+            if retry not in ('s', 'si', 'y', 'yes', '1'):
+                return None
+            continue
+
+        MAX_DISPLAY = 20
+        shown = matches[:MAX_DISPLAY]
+        print(f"\n🔍 {len(matches)} estación(es) encontrada(s):")
+        station_type_map = {"M": "METEREOLOGICA", "H": "HIDROLOGICA"}
+        for i, s in enumerate(shown, 1):
+            print(f"  {i:2}. {s.name:<30} {station_type_map.get(s.station_type, 'DESCONOCIDO'):<15} {s.category:<6} {s.status:<10} [cod: {s.code}]")
+        if len(matches) > MAX_DISPLAY:
+            print(f"  ... y {len(matches) - MAX_DISPLAY} más. Refine su búsqueda para ver menos resultados.")
+
+        while True:
+            pick = input(f"\nSeleccione número (1-{len(shown)}) o Enter para nueva búsqueda: ").strip()
+            if pick == "":
+                break
+            try:
+                idx = int(pick) - 1
+                if 0 <= idx < len(shown):
+                    return shown[idx]
+                print(f"{settings.ERROR} Número fuera de rango. Elija entre 1 y {len(shown)}.")
+            except ValueError:
+                print(f"{settings.ERROR} Por favor ingresa un número válido.")
+
+def get_user_query_mode(filename: str, cli_args: Dict = None) -> Dict:
     """
-    Obtiene parámetros para consulta mensual
+    Solicita al usuario el modo de consulta.
+    Si cli_args contiene datos suficientes, los usa directamente sin preguntar.
     """
+    cli_args = cli_args or {}
+    mode = cli_args.get("mode")
+
+    if not mode:
+        print("\n" + "="*50)
+        print("🔍 SELECCIONA EL MODO DE CONSULTA")
+        print("="*50)
+        print("1. Month  - Descargar un mes específico (YYYY-MM)")
+        print("2. Year   - Descargar todo un año")
+        print("3. Period - Descargar un periodo de años (YYYY-YYYY)")
+        print("="*50)
+
+        while True:
+            mode_input = input("Ingresa el número del modo (1-3): ").strip()
+            if mode_input == "1":
+                mode = "month"
+                break
+            elif mode_input == "2":
+                mode = "year"
+                break
+            elif mode_input == "3":
+                mode = "period"
+                break
+            else:
+                print(f"{settings.ERROR} Opción inválida. Por favor ingresa 1, 2 o 3.")
+
+    if mode == "month":
+        return get_month_params(filename, cli_args)
+    elif mode == "year":
+        return get_year_params(filename, cli_args)
+    elif mode == "period":
+        return get_period_params(filename, cli_args)
+    else:
+        print(f"{settings.ERROR} Modo inválido: '{mode}'. Use: month, year o period.")
+        raise SystemExit(1)
+
+def get_month_params(filename: str, cli_args: Dict = None) -> Dict:
+    """
+    Obtiene parámetros para consulta mensual.
+    Usa cli_args si están disponibles; pregunta solo lo que falte.
+    """
+    cli_args = cli_args or {}
     print("\n📅 Modo MONTH seleccionado")
-    
-    while True:
-        try:
-            year_input = input("Ingresa el año (ej: 2024): ").strip()
-            year = int(year_input)
-            if year < 2000 or year > 2050:
+
+    # --- año ---
+    year = cli_args.get("year")
+    if year is None:
+        while True:
+            try:
+                year = int(input("Ingresa el año (ej: 2024): ").strip())
+                if 2000 <= year <= 2050:
+                    break
                 print(f"{settings.ERROR} Año inválido. Debe estar entre 2000 y 2050.")
-                continue
-                
-            month_input = input("Ingresa el mes (1-12): ").strip()
-            month = int(month_input)
-            if month < 1 or month > 12:
+            except ValueError:
+                print(f"{settings.ERROR} Por favor ingresa un número válido.")
+    elif not (2000 <= year <= 2050):
+        print(f"{settings.ERROR} Año inválido: {year}. Debe estar entre 2000 y 2050.")
+        raise SystemExit(1)
+
+    # --- mes ---
+    month = cli_args.get("month")
+    if month is None:
+        while True:
+            try:
+                month = int(input("Ingresa el mes (1-12): ").strip())
+                if 1 <= month <= 12:
+                    break
                 print(f"{settings.ERROR} Mes inválido. Debe estar entre 1 y 12.")
-                continue
-                
-            return {
-                "mode": "month",
-                "year": year,
-                "month": month,
-                "filename": f"{filename}-{year:04d}{month:02d}.csv"
-            }
-            
-        except ValueError:
-            print(f"{settings.ERROR} Por favor ingresa números válidos.")
+            except ValueError:
+                print(f"{settings.ERROR} Por favor ingresa un número válido.")
+    elif not (1 <= month <= 12):
+        print(f"{settings.ERROR} Mes inválido: {month}. Debe estar entre 1 y 12.")
+        raise SystemExit(1)
 
-def get_year_params(filename: str) -> Dict:
+    return {
+        "mode": "month",
+        "year": year,
+        "month": month,
+        # month siempre genera archivo individual (un solo mes)
+        "consolidated": False,
+        "filename": f"{filename}-{year:04d}{month:02d}.csv",
+    }
+
+def get_year_params(filename: str, cli_args: Dict = None) -> Dict:
     """
-    Obtiene parámetros para consulta anual
+    Obtiene parámetros para consulta anual.
+    Usa cli_args si están disponibles; pregunta solo lo que falte.
+    Consolidado es el modo por defecto.
     """
+    cli_args = cli_args or {}
     print("\n📅 Modo YEAR seleccionado")
-    
-    while True:
-        try:
-            year_input = input("Ingresa el año (ej: 2024): ").strip()
-            year = int(year_input)
-            if year < 2000 or year > 2050:
+
+    # --- año ---
+    year = cli_args.get("year")
+    if year is None:
+        while True:
+            try:
+                year = int(input("Ingresa el año (ej: 2024): ").strip())
+                if 2000 <= year <= 2050:
+                    break
                 print(f"{settings.ERROR} Año inválido. Debe estar entre 2000 y 2050.")
-                continue
-                
-            save_mode = input("¿Guardar como archivo único? (s/n): ").strip().lower()
-            consolidated = save_mode in ['s', 'si', 'y', 'yes', 'true', '1']
+            except ValueError:
+                print(f"{settings.ERROR} Por favor ingresa un número válido.")
+    elif not (2000 <= year <= 2050):
+        print(f"{settings.ERROR} Año inválido: {year}. Debe estar entre 2000 y 2050.")
+        raise SystemExit(1)
 
-            return {
-                "mode": "year",
-                "year": year,
-                "consolidated": consolidated,
-                "filename": f"{filename}-{year}.csv" if consolidated else None
-            }
-            
-        except ValueError:
-            print(f"{settings.ERROR} Por favor ingresa un número válido.")
+    # --- consolidado (default: True) ---
+    # cli_args puede traer individual=True (flag --individual)
+    consolidated = not cli_args.get("individual", False)
+    if "individual" not in cli_args and "consolidated" not in cli_args:
+        # modo interactivo: preguntar solo si no vino de CLI
+        if "year" not in cli_args:  # si el año también fue interactivo, preguntar
+            save_mode = input("¿Guardar como archivo consolidado? [S/n]: ").strip().lower()
+            consolidated = save_mode not in ('n', 'no')
 
-def get_period_params(filename: str) -> Dict:
+    return {
+        "mode": "year",
+        "year": year,
+        "consolidated": consolidated,
+        "filename": f"{filename}-{year}.csv" if consolidated else None,
+    }
+
+def get_period_params(filename: str, cli_args: Dict = None) -> Dict:
     """
-    Obtiene parámetros para consulta de periodo
+    Obtiene parámetros para consulta de periodo.
+    Usa cli_args si están disponibles; pregunta solo lo que falte.
+    Consolidado es el modo por defecto.
     """
+    cli_args = cli_args or {}
     print("\n📅 Modo PERIOD seleccionado")
-    
-    while True:
-        try:
-            start_year_input = input("Ingresa el año inicial (ej: 2020): ").strip()
-            start_year = int(start_year_input)
-            
-            end_year_input = input("Ingresa el año final (ej: 2025): ").strip()
-            end_year = int(end_year_input)
-            
-            if start_year > end_year:
-                print(f"{settings.ERROR} El año inicial no puede ser mayor que el final.")
-                continue
 
-            if start_year < 2000 or end_year > 2050:
-                print(f"{settings.ERROR} Los años deben estar entre 2000 y 2050.")
-                continue
-                
-            save_mode = input("¿Guardar como archivo único? (s/n): ").strip().lower()
-            consolidated = save_mode in ['s', 'si', 'y', 'yes']
-            
-            return {
-                "mode": "period",
-                "start_year": start_year,
-                "end_year": end_year,
-                "consolidated": consolidated,
-                "filename": f"{filename}-{start_year}-{end_year}.csv" if consolidated else None
-            }
-            
-        except ValueError:
-            print(f"{settings.ERROR} Por favor ingresa números válidos.")
+    # --- año inicial ---
+    start_year = cli_args.get("start")
+    if start_year is None:
+        while True:
+            try:
+                start_year = int(input("Ingresa el año inicial (ej: 2020): ").strip())
+                if 2000 <= start_year <= 2050:
+                    break
+                print(f"{settings.ERROR} Año inválido. Debe estar entre 2000 y 2050.")
+            except ValueError:
+                print(f"{settings.ERROR} Por favor ingresa un número válido.")
+    elif not (2000 <= start_year <= 2050):
+        print(f"{settings.ERROR} Año inicial inválido: {start_year}. Debe estar entre 2000 y 2050.")
+        raise SystemExit(1)
+
+    # --- año final ---
+    end_year = cli_args.get("end")
+    if end_year is None:
+        while True:
+            try:
+                end_year = int(input("Ingresa el año final (ej: 2025): ").strip())
+                if end_year < start_year:
+                    print(f"{settings.ERROR} El año final no puede ser menor que el inicial ({start_year}).")
+                    continue
+                if 2000 <= end_year <= 2050:
+                    break
+                print(f"{settings.ERROR} Año inválido. Debe estar entre 2000 y 2050.")
+            except ValueError:
+                print(f"{settings.ERROR} Por favor ingresa un número válido.")
+    else:
+        if end_year < start_year:
+            print(f"{settings.ERROR} El año final ({end_year}) no puede ser menor que el inicial ({start_year}).")
+            raise SystemExit(1)
+        if not (2000 <= end_year <= 2050):
+            print(f"{settings.ERROR} Año final inválido: {end_year}. Debe estar entre 2000 y 2050.")
+            raise SystemExit(1)
+
+    # --- consolidado (default: True) ---
+    consolidated = not cli_args.get("individual", False)
+    if "individual" not in cli_args and "start" not in cli_args:
+        save_mode = input("¿Guardar como archivo consolidado? [S/n]: ").strip().lower()
+        consolidated = save_mode not in ('n', 'no')
+
+    return {
+        "mode": "period",
+        "start_year": start_year,
+        "end_year": end_year,
+        "consolidated": consolidated,
+        "filename": f"{filename}-{start_year}-{end_year}.csv" if consolidated else None,
+    }
