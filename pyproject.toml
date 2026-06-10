@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "garua"
+version = "0.29.4"
+description = "Servidor MCP para consultar estaciones SENAMHI y descargar datos meteorológicos históricos del Perú. Garúa: llovizna fina característica del clima peruano."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Dany Daniel", email = "danydanieln@hotmail.com" }
+]
+maintainers = [
+    { name = "Dany Daniel", email = "danydanieln@hotmail.com" }
+]
+keywords = [
+    "garua",
+    "senamhi",
+    "meteorologia",
+    "peru",
+    "weather",
+    "climate",
+    "mcp",
+    "model-context-protocol",
+    "scraper",
+    "data-download",
+    "garua-app"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "fastmcp>=3.3.1",
+    "pydantic>=2.10.6",
+    "zendriver>=0.7.2",
+    "requests>=2.34.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.13.0",
+    "pytest>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://garua.app"
+Documentation = "https://github.com/danyneyra/senamhi-scraper#readme"
+Repository = "https://github.com/danyneyra/senamhi-scraper"
+Issues = "https://github.com/danyneyra/senamhi-scraper/issues"
+Changelog = "https://github.com/danyneyra/senamhi-scraper/releases"
+Website = "https://garua.app"
+
+[project.scripts]
+garua = "garua.main:cli"
+garua-mcp = "garua.mcp_server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/garua"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/garua",
+    "/README.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311", "py312", "py313"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

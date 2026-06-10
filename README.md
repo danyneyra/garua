@@ -1,16 +1,41 @@
-# 🌦️ SENAMHI Data Scraper
+<div align="center">
+  <a href="https://garua.app/">
+    <img alt="refine logo" src="https://www.garua.app/garua-logo.svg">
+  </a>
+  <p>Es una herramienta sencilla pero muy útil para descargar datos hidrometeorológicos oficiales del <strong>SENAMHI</strong>.  
+  </p>
+</div>
 
-[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/downloads/)
-[![Zendriver](https://img.shields.io/badge/Zendriver-Latest-orange.svg)](https://zendriver.dev/)
-[![Pydantic](https://img.shields.io/badge/Pydantic-v2-green.svg)](https://pydantic.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> **Un proyecto de [Dany Daniel](https://github.com/danyneyra)** - Freelance full-stack Dev | Support IT
+
+[![PyPI](https://img.shields.io/badge/PyPI-1c83ff?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/garua/)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Zendriver](https://img.shields.io/badge/Zendriver-Latest-orange?style=for-the-badge&logo=chromatic&logoColor=white)](https://zendriver.dev/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-v2-green?style=for-the-badge&logo=pydantic&logoColor=white)](https://pydantic.dev/)
+[![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-4-38B2AC?style=for-the-badge&logo=pypi&logoColor=white)](https://www.crummy.com/software/BeautifulSoup/bs4/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-89e240?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+### 🌐 Sígueme en mis redes sociales
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/@dannydanieln)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/dannydanieln)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/danydanieln)
+
+---
 
 > **Automatiza la descarga de datos meteorológicos históricos del SENAMHI con bypass automático de Cloudflare Turnstile**
+>
+> *Garúa: llovizna fina característica del clima peruano* 🇵🇪
 
 Este proyecto permite **descargar datos hidrometeorológicos históricos** en archivos CSV organizados por **Mes, Año o Rangos de años** desde el sitio web oficial del **SENAMHI** (Servicio Nacional de Meteorología e Hidrología del Perú). Utiliza tecnología avanzada con `Zendriver` para superar automáticamente las protecciones de Cloudflare Turnstile.
 
+**🎯 Dos formas de uso:**
+1. **📟 CLI (Línea de comandos)** - Descarga directa de datos para análisis local
+2. **🤖 Servidor MCP** - Integración con VS Code, Claude Desktop, Cursor ([ver guía de instalación](INSTALL.md))
+
 ## 📚 Tabla de Contenidos
 
+- [🤖 Instalación como Servidor MCP](#-instalación-como-servidor-mcp)
 - [✨ Características](#-características)
 - [🎯 Modos de Consulta](#-modos-de-consulta)
 - [📁 Estructura del Proyecto](#-estructura-del-proyecto)
@@ -23,6 +48,80 @@ Este proyecto permite **descargar datos hidrometeorológicos históricos** en ar
 - [🔧 Troubleshooting](#-troubleshooting)
 - [⚠️ Limitaciones](#️-limitaciones)
 - [📄 Licencia](#-licencia)
+
+## 🤖 Instalación como Servidor MCP
+
+¿Quieres usar este proyecto con **IA integradas** como VS Code + GitHub Copilot, Claude Desktop o Codex?  
+Puedes instalarlo como servidor MCP compatible con **cualquier cliente MCP**:
+
+```bash
+pip install garua
+```
+
+### 🔷 Clientes Soportados
+
+- **VS Code** (GitHub Copilot)
+- **Claude Desktop** (Anthropic)
+- **Codex**
+- Cualquier cliente compatible con el protocolo MCP
+
+📖 **Guías:**
+- [**INSTALL.md**](INSTALL.md) - Instrucciones de instalación para cada cliente
+- [**MCP_EXPLAINED.md**](MCP_EXPLAINED.md) - Cómo funciona el protocolo MCP
+
+### 🎯 ¿Qué obtienes?
+
+**18 herramientas** organizadas en 6 categorías:
+- 🔍 **Búsqueda y filtrado** (7 tools) - search, find_near, filter_by_location, etc.
+- 🎯 **Recomendación inteligente** (1 tool) - recommend_station_for_point con scoring explicable
+- 📊 **Análisis y comparación** (1 tool) - compare_periods con detección automática de esquema
+- 📈 **Estadísticas** (5 tools) - stations_summary, get_departments_summary, etc.
+- 📁 **Gestión de archivos** (3 tools) - list_downloaded_files, read_csv_preview, etc.
+- ⬇️ **Descarga** (1 tool) - scrape_station_data
+
+#### 🆕 Sistema de Recomendación
+**`recommend_station_for_point`** - Recomienda las mejores estaciones para un punto geográfico considerando:
+- 📍 Distancia al punto de interés
+- 📅 Historial de datos disponible
+- ⚡ Estado operativo (REAL, AUTOMATICA, DIFERIDO)
+- 🏔️ Similitud altitudinal (opcional)
+
+Devuelve un **score explicable** (0-100) con justificación en español. Ideal para proyectos técnicos que requieren defender la selección de estaciones.
+
+📖 **Documentación completa**: [docs/RECOMMENDATION_SYSTEM.md](docs/RECOMMENDATION_SYSTEM.md)
+
+#### 🆕 Sistema de Comparación de Periodos
+**`compare_periods`** - Compara periodos de datos con detección automática de esquema:
+- 🔍 Detecta automáticamente el tipo de estación (meteorológica/hidrológica × convencional/automática)
+- 📊 Calcula métricas apropiadas según el esquema detectado
+- 📈 Compara N periodos con deltas y cambios porcentuales
+- 🔄 Detecta y elimina duplicados
+- 💬 Genera resumen interpretativo en español
+- ⚠️ Reporta warnings detallados (datos faltantes, métricas inválidas)
+
+Soporta 4 esquemas con métricas específicas: temperatura, humedad, precipitación, viento, nivel del río.
+
+📖 **Documentación completa**: [docs/COMPARISON_SYSTEM.md](docs/COMPARISON_SYSTEM.md)
+
+### 💬 Ejemplos de Uso
+
+**En VS Code (Copilot Chat):**
+```
+@garua busca estaciones meteorológicas en Arequipa sobre 3000 msnm
+@garua descarga datos de febrero 2025 de la estación Cabana
+@garua recomienda la mejor estación para mi proyecto en lat -7.61, lon -77.82, considerando altitud de 3000 msnm
+@garua compara diciembre 2024 vs diciembre 2025 para la estación Cabana
+```
+
+**En Claude Desktop:**
+```
+¿Qué estaciones meteorológicas hay en Cajamarca?
+Descarga los datos de enero 2025 de Cabana
+Necesito la mejor estación meteorológica para un proyecto en coordenadas -12.0, -77.0 con al menos 5 años de historial
+Compara la precipitación de febrero y marzo 2026 para Cabana
+```
+
+---
 
 ## ✨ Características
 
@@ -63,7 +162,7 @@ Descarga datos de múltiples años.
 ## 📁 Estructura del Proyecto
 
 ```
-senamhi_scraper/
+garua/
 ├── 📄 main.py                    # 🚀 Script principal ejecutable
 ├── 📄 run_scraper.py            # 🎮 Interfaz interactiva (recomendado)
 ├── ⚙️ settings.py               # ✨ Configuración centralizada
@@ -103,8 +202,8 @@ senamhi_scraper/
 
 ### 1. Clonar repositorio
 ```bash
-git clone https://github.com/danyneyra/senamhi-scraper.git
-cd senamhi-scraper
+git clone https://github.com/danyneyra/garua.git
+cd garua
 ```
 
 ### 2. Crea un entorno virtual
@@ -393,7 +492,20 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software...
 ```
 
-##
+## 👨‍💻 Autor
+
+**Dany Daniel** - [@danyneyra](https://github.com/danyneyra)
+
+Soy un apasionado de la tecnología, siempre curioso, explorando nuevas fronteras, ya sea en el desarrollo de software, soporte de TI o electrónica.
+
+
+### 💖 Apoyo
+
+Si te gusta este proyecto, puedes apoyar me:
+
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/danydaniel)
+
+---
 
 <div align="center">
 Desarollado con 💜 para la comunidad meteorológica peruana. <br/>
