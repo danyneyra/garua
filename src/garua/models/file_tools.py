@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,6 +20,16 @@ class ExtractFilesResponse(SuccessResponse):
         ...,
         description="Indica si los archivos de salida sobrescriben archivos existentes con el mismo nombre",
     )
+    display_hint: Annotated[
+        Optional[str],
+        Field(
+            None,
+            description=(
+                "Sugerencia de visualización para el cliente. "
+                "Puede ser 'table', 'chart', 'file_list', etc., dependiendo de cómo se quieran mostrar los datos."
+            ),
+        ),
+    ] = "Mostrar los archivos extraídos al usuario, con opciones para abrirlos o descargarlos."
 
 
 class CsvPreviewResponse(BaseModel):

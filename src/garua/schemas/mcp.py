@@ -1,4 +1,4 @@
-from mcp.types import TextContent, ResourceLink
+from mcp.types import TextContent, ResourceLink, Annotations
 from pathlib import Path
 from pydantic import AnyUrl
 
@@ -36,6 +36,7 @@ def build_files_info(
         path_obj = Path(file_path)
         file_name = path_obj.name
         resolved_path = path_obj.resolve()
+        size_bytes = resolved_path.stat().st_size if resolved_path.is_file() else None
 
         absolute_path = str(resolved_path)
         uri_target = resolved_path.as_uri()
@@ -51,6 +52,8 @@ def build_files_info(
                 uri=file_uri,
                 mime_type=mime_type,
                 description=description,
+                open_label=file_name,
+                size_bytes=size_bytes,
             )
         )
         resource_links.append(
@@ -61,6 +64,8 @@ def build_files_info(
                 uri=file_uri,
                 description=description,
                 mimeType=mime_type,
+                size=size_bytes,
+                annotations=Annotations(audience=["user"], priority=1.0),
             )
         )
 

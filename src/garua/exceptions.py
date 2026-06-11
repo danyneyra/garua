@@ -1,23 +1,45 @@
-"""
-Excepciones específicas para el scraping de SENAMHI
-"""
+"""Excepciones de dominio para Garúa."""
 
-class ScrapingError(Exception):
-    """Excepción base para errores de scraping"""
-    pass
 
-class IframeNotFoundError(ScrapingError):
-    """Error cuando no se encuentra el iframe contenedor"""
-    pass
+class GaruaError(Exception):
+    """Excepción base para errores controlados de Garúa."""
 
-class TableNotFoundError(ScrapingError):
-    """Error cuando no se encuentra la tabla de datos"""
-    pass
 
-class SelectNotFoundError(ScrapingError):
-    """Error cuando no se encuentra el elemento select"""
-    pass
+class ScrapingError(GaruaError):
+    """Error base durante la navegación, captura o procesamiento de datos SENAMHI."""
+
+
+class ScrapingPageError(ScrapingError):
+    """Error al preparar o navegar la página de SENAMHI."""
+
+
+class SelectNotFoundError(ScrapingPageError):
+    """No se encontró el selector de periodos en la página de SENAMHI."""
+
+
+class IframeNotFoundError(ScrapingPageError):
+    """No se encontró el iframe esperado en la página de SENAMHI."""
+
+
+class ScrapingDataError(ScrapingError):
+    """Error al interpretar la respuesta de datos de SENAMHI."""
+
+
+class TableNotFoundError(ScrapingDataError):
+    """No se encontró la tabla de datos esperada en la respuesta de SENAMHI."""
+
 
 class OptionProcessingError(ScrapingError):
-    """Error al procesar una opción específica"""
-    pass
+    """Falló el procesamiento de una opción o periodo del selector."""
+
+
+__all__ = [
+    "GaruaError",
+    "ScrapingError",
+    "ScrapingPageError",
+    "SelectNotFoundError",
+    "IframeNotFoundError",
+    "ScrapingDataError",
+    "TableNotFoundError",
+    "OptionProcessingError",
+]

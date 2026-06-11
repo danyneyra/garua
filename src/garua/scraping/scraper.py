@@ -19,7 +19,7 @@ from garua.models.scraping import ScrapingQueryParams
 from garua.exceptions import TableNotFoundError, SelectNotFoundError
 from garua.utils.ui_console import ui
 from garua.services.station import (
-    create_station_url,
+    build_scraping_url_for_station,
     get_headers_for_station,
 )
 from garua.scraping.query_modes import QueryModeHandler
@@ -164,7 +164,7 @@ async def scraping_main(query_station: Station, query_params: ScrapingQueryParam
         headers = get_headers_for_station(query_station)
 
         # Construir URL de la estación y preparar navegador + página
-        url_station = create_station_url(query_station)
+        url_station = build_scraping_url_for_station(query_station)
         browser = await zd.start()
         page, response_queue = await setup_page(browser, url_station)
 

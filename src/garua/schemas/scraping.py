@@ -18,9 +18,13 @@ def _append_open_file_options(message: str, files_info: list[FileInfo]) -> str:
 
     lines = ["", "Archivos disponibles para abrir:"]
     for file_info in files_info:
-        lines.append(f"[{file_info.name}]({file_info.uri})")
-        lines.append(f"  Ruta local: {file_info.path}")
+        lines.append(f"Archivo disponible: {file_info.name} \n")
+        lines.append(f"Ruta: {file_info.uri} \n")
+        lines.append("\n")
 
+    lines.append(
+        "\nLos archivos están disponibles como recursos adjuntos a esta respuesta. Puedes abrirlo desde el recurso adjunto o desde la ruta indicada."
+    )
     return message.rstrip() + "\n" + "\n".join(lines)
 
 

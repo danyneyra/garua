@@ -1,34 +1,41 @@
 """Tools para búsqueda y filtrado de estaciones SENAMHI."""
 
+import csv
+from datetime import datetime
 from typing import Annotated
 
+from mcp.types import TextContent
 from pydantic import Field
 
 from garua.schemas.station import station_response_serializer as _serialize
 from garua.services.station import (
+    check_data_availability as check_data_availability_service,
     find_station_by_code,
     search_stations_by_name,
     stations,
 )
 from garua.utils.helpers import haversine
-from garua.schemas.mcp import build_mcp_success_response, build_mcp_error_response
+from garua.schemas.mcp import (
+    build_files_info,
+    build_mcp_error_response,
+    build_mcp_success_response,
+)
 
 
-def _calculate_years_available(data_since: str | None) -> int | None:
-    """Calcula cuántos años de datos están disponibles desde data_since hasta hoy."""
-    if not data_since:
-        return None
-    try:
-        year, month = map(int, data_since.split("-"))
-        from datetime import datetime
-
-        current = datetime.now()
-        years = current.year - year
-        if current.month < month:
-            years -= 1
-        return max(0, years)
-    except (ValueError, IndexError):
-        return None
+_STATIONS_CSV_HEADERS = {
+    "name": "Nombre",
+    "code": "Código",
+    "type": "Tipo",
+    "category": "Categoría",
+    "status": "Estado",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "department": "Departamento",
+    "province": "Provincia",
+    "district": "Distrito",
+    "altitude": "Altitud",
+    "data_available_since": "Datos disponibles desde",
+}
 
 
 def register_station_tools(mcp):
@@ -48,11 +55,20 @@ def register_station_tools(mcp):
         ],
     ) -> dict:
         """
-        Busca estaciones SENAMHI por código exacto o nombre parcial.
-        USA ESTA TOOL cuando el usuario mencione el nombre o código de una estación.
-        Devuelve: nombre, código, tipo (M/H), categoría, estado, coordenadas,
-        departamento, provincia, distrito, altitud y periodo de disponibilidad de datos.
-        Si no hay resultados, devuelve lista vacía — no intentes buscar de otra forma.
+        Busca estaciones SENAMHI por código o por nombre.
+
+        Úsala cuando el usuario mencione una estación específica pero no esté claro
+        si proporcionó el código interno, código anterior, código visible en frontend
+        o solo una parte del nombre. La búsqueda por código intenta coincidencia exacta;
+        la búsqueda por nombre acepta coincidencias parciales sin distinguir mayúsculas.
+
+        Devuelve una lista de estaciones candidatas con datos básicos para selección:
+        nombre, código, tipo, categoría, estado operativo, coordenadas, ubicación
+        administrativa, altitud y fecha inicial de disponibilidad de datos.
+
+        Si devuelve varias estaciones, pide o infiere la estación correcta antes de
+        descargar, resumir, comparar o validar datos. Si devuelve lista vacía, no
+        inventes códigos ni estaciones.
         """
         exact = find_station_by_code(query)
         matches = [exact] if exact else search_stations_by_name(query)
@@ -74,9 +90,18 @@ def register_station_tools(mcp):
         ],
     ) -> dict:
         """
-        Devuelve el detalle completo de una estación dado su código interno.
-        USA ESTA TOOL para obtener todos los datos de una estación específica.
-        Si no se encuentra, devuelve un dict con clave 'error' — no busques de otra forma.
+        Obtiene la ficha completa de una estación SENAMHI por código.
+
+        Úsala cuando ya tengas un código de estación y necesites confirmar sus
+        metadatos antes de una operación posterior. Acepta el código interno,
+        código anterior o código visible de frontend cuando existan equivalencias.
+
+        Devuelve una sola estación con nombre, código, tipo, categoría, estado,
+        coordenadas, departamento, provincia, distrito, altitud y disponibilidad
+        histórica. Si el código no existe, devuelve una respuesta de error.
+
+        Para búsquedas por nombre o cuando el código sea dudoso, usa primero
+        search_stations.
         """
         station = find_station_by_code(code)
         if not station:
@@ -89,12 +114,124 @@ def register_station_tools(mcp):
         )
 
     @mcp.tool()
-    def get_all_stations() -> dict:
-        """Devuelve la lista completa de estaciones con sus detalles."""
+    def get_all_stations(
+        limit: Annotated[
+            int,
+            Field(
+                ge=1,
+                le=500,
+                description=(
+                    "Cantidad máxima de estaciones a devolver en esta página. "
+                    "Usa export_all_stations_csv si necesitas el catálogo completo."
+                ),
+            ),
+        ] = 100,
+        offset: Annotated[
+            int,
+            Field(
+                ge=0,
+                description="Cantidad de estaciones a omitir antes de devolver resultados.",
+            ),
+        ] = 0,
+    ) -> dict:
+        """
+        Devuelve una página del catálogo de estaciones SENAMHI disponibles.
+
+        Úsala cuando el usuario quiera explorar o listar estaciones en el chat.
+        La respuesta está paginada para evitar respuestas demasiado grandes en el
+        cliente MCP. Para exportar o descargar el catálogo completo, usa
+        export_all_stations_csv.
+
+        La respuesta incluye cada estación con metadatos de identificación,
+        ubicación, coordenadas, altitud, tipo, categoría, estado operativo y fecha
+        inicial de datos disponibles, además de total, limit, offset y has_more.
+        """
+        total = len(stations)
+        paginated_stations = stations[offset : offset + limit]
+        has_more = offset + limit < total
+
         return build_mcp_success_response(
-            "Lista completa de estaciones",
-            {"stations": [_serialize(s) for s in stations]},
+            f"{len(paginated_stations)} estación(es) devuelta(s) de {total}",
+            {
+                "stations": [_serialize(s) for s in paginated_stations],
+                "total": total,
+                "limit": limit,
+                "offset": offset,
+                "next_offset": offset + limit if has_more else None,
+                "has_more": has_more,
+            },
         )
+
+    @mcp.tool()
+    def export_all_stations_csv(
+        overwrite: Annotated[
+            bool,
+            Field(
+                description=(
+                    "Si es True, regenera el CSV aunque ya exista. "
+                    "Si es False, reutiliza el archivo existente cuando esté disponible."
+                )
+            ),
+        ] = True,
+    ) -> dict:
+        """
+        Exporta el catálogo completo de estaciones SENAMHI a un archivo CSV.
+
+        Úsala cuando el usuario pida descargar, exportar, guardar o compartir el
+        catálogo completo de estaciones. A diferencia de get_all_stations, esta
+        tool no devuelve todas las filas dentro de structuredContent; genera un
+        CSV en exports/estaciones_senamhi.csv y devuelve un enlace de recurso.
+
+        El CSV incluye nombre, código, tipo, categoría, estado, coordenadas,
+        ubicación administrativa, altitud y fecha inicial de disponibilidad de
+        datos.
+        """
+        from garua.settings import EXPORTS_DIR
+
+        output_path = EXPORTS_DIR / "estaciones_senamhi.csv"
+        generated = False
+
+        if overwrite or not output_path.exists():
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            rows = [
+                {
+                    csv_header: station_data.get(response_key)
+                    for response_key, csv_header in _STATIONS_CSV_HEADERS.items()
+                }
+                for station_data in (_serialize(s) for s in stations)
+            ]
+            with output_path.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(
+                    f, fieldnames=list(_STATIONS_CSV_HEADERS.values())
+                )
+                writer.writeheader()
+                writer.writerows(rows)
+            generated = True
+
+        files_info, resource_links = build_files_info(
+            [str(output_path)], kind="output_file"
+        )
+        file_info = files_info[0].model_dump(mode="json") if files_info else None
+        message_action = "generado" if generated else "reutilizado"
+        message = (
+            f"CSV de estaciones {message_action}: {output_path} ({len(stations)} filas)"
+        )
+
+        content: list = [TextContent(text=message, type="text")]
+        content.extend(resource_links)
+
+        return {
+            "content": content,
+            "structuredContent": {
+                "message": message,
+                "total_rows": len(stations),
+                "columns": list(_STATIONS_CSV_HEADERS.values()),
+                "file": file_info,
+                "generated": generated,
+                "generated_at": datetime.now().isoformat(timespec="seconds"),
+            },
+            "isError": False,
+        }
 
     @mcp.tool()
     def find_stations_near(
@@ -122,10 +259,19 @@ def register_station_tools(mcp):
         ] = "all",
     ) -> dict:
         """
-        Devuelve las estaciones SENAMHI dentro de un radio (km) de las coordenadas dadas.
-        USA ESTA TOOL cuando el usuario pregunte por estaciones cercanas a un lugar.
-        Resultados ordenados de más cercana a más lejana, con campo 'distance_km'.
-        NUNCA calcules distancias manualmente — esta tool ya lo hace.
+        Encuentra estaciones SENAMHI cercanas a un punto geográfico.
+
+        Úsala cuando el usuario proporcione coordenadas, un punto de proyecto o
+        pregunte por estaciones próximas a una ubicación ya georreferenciada. Filtra
+        por radio en kilómetros y opcionalmente por tipo de estación: meteorológica,
+        hidrológica o ambas.
+
+        Devuelve estaciones ordenadas de menor a mayor distancia e incluye
+        distance_km en cada resultado. Este cálculo de distancia ya está incorporado,
+        así que no lo recalcules manualmente.
+
+        Si el usuario necesita una recomendación justificable que combine distancia,
+        historial, estado operativo y altitud, usa recommend_station_for_point_tool.
         """
         results = []
         for s in stations:
@@ -160,10 +306,19 @@ def register_station_tools(mcp):
         ] = None,
     ) -> dict:
         """
-        Filtra estaciones por departamento, provincia o distrito.
-        USA ESTA TOOL cuando el usuario mencione una región, ciudad o lugar de Perú.
-        La búsqueda es case-insensitive y parcial. Puedes combinar filtros.
-        NUNCA filtres la lista manualmente — esta tool ya lo hace.
+        Filtra estaciones SENAMHI por ubicación administrativa del Perú.
+
+        Úsala cuando el usuario mencione un departamento, provincia o distrito y
+        quiera conocer las estaciones disponibles allí. Los filtros aceptan
+        coincidencias parciales y no distinguen mayúsculas, por lo que sirven para
+        búsquedas exploratorias por región o localidad.
+
+        Puedes combinar departamento, provincia y distrito para acotar resultados.
+        Devuelve las estaciones que cumplen todos los filtros con sus metadatos
+        principales. No filtres manualmente el catálogo completo para este caso.
+
+        Si el usuario entrega coordenadas o pregunta por cercanía real en kilómetros,
+        usa find_stations_near en lugar de esta tool.
         """
         results = []
         for s in stations:
@@ -212,9 +367,19 @@ def register_station_tools(mcp):
     ) -> dict:
         """
         Filtra estaciones SENAMHI por rango de altitud en msnm.
-        USA ESTA TOOL cuando el usuario mencione altitud, zonas costeras, andinas, etc.
-        Resultados ordenados por altitud ascendente.
-        Ejemplos: costeras → max_altitude=500 | altoandinas → min_altitude=3000
+
+        Úsala cuando el usuario necesite estaciones costeras, de valle, andinas,
+        altoandinas o con una altitud mínima/máxima específica. Puedes proporcionar
+        solo min_altitude, solo max_altitude o ambos límites.
+
+        Devuelve estaciones con altitud conocida, ordenadas de menor a mayor altitud.
+        Las estaciones sin altitud registrada se excluyen cuando se aplica este
+        filtro.
+
+        Ejemplos de intención:
+        - estaciones costeras: max_altitude=500
+        - estaciones altoandinas: min_altitude=3000
+        - estaciones entre dos cotas: min_altitude y max_altitude
         """
         results = []
         for s in stations:
@@ -256,64 +421,47 @@ def register_station_tools(mcp):
         ] = None,
     ) -> dict:
         """
-        Consulta la disponibilidad de datos históricos. USA ESTA TOOL antes de descargar.
+        Consulta desde cuándo hay datos históricos disponibles para estaciones SENAMHI.
 
-        Modo 1 — estación específica: check_data_availability(station_code='100090')
-          → retorna desde qué año/mes hay datos y cuántos años disponibles.
+        Úsala antes de descargar, resumir, comparar o validar datos para confirmar
+        que la estación tiene cobertura suficiente para el periodo solicitado. También
+        sirve para encontrar estaciones con series largas o con disponibilidad reciente.
 
-        Modo 2 — filtro: check_data_availability(before_year=2010)
-          → lista estaciones con series históricas largas (datos desde antes de 2010).
+        Modos de uso:
+        - station_code: devuelve disponibilidad de una estación específica, incluyendo
+          data_available_since y years_available.
+        - before_year: lista estaciones cuyo inicio de datos es anterior al año dado,
+          útil para encontrar series históricas largas.
+        - after_year: lista estaciones cuyo inicio de datos es posterior al año dado,
+          útil para ubicar estaciones con disponibilidad reciente.
+        - before_year + after_year: acota estaciones por ventana de inicio de datos.
 
-        Modo 3 — rango: check_data_availability(after_year=2022)
-          → lista estaciones con datos recientes.
+        Si el usuario pide descargar un periodo concreto, llama esta tool primero
+        cuando no estés seguro de que el periodo esté cubierto por la estación.
         """
         if station_code:
-            station = find_station_by_code(station_code)
-            if not station:
+            availability = check_data_availability_service(station_code=station_code)
+            if availability is None or availability.station is None:
                 return build_mcp_error_response(
                     f"Estación con código '{station_code}' no encontrada"
                 )
 
             return build_mcp_success_response(
                 f"Estación encontrada para código '{station_code}'",
-                {
-                    "name": station.name,
-                    "code": station.code,
-                    "data_available_since": station.data_available_since,
-                    "years_available": _calculate_years_available(
-                        station.data_available_since
-                    ),
-                },
+                availability.station.model_dump(),
             )
 
-        results = []
-        for s in stations:
-            if not s.data_available_since:
-                continue
+        availability = check_data_availability_service(
+            before_year=before_year,
+            after_year=after_year,
+        )
+        results = (
+            availability.stations if availability and availability.stations else []
+        )
 
-            try:
-                year = int(s.data_available_since.split("-")[0])
-
-                if before_year and year >= before_year:
-                    continue
-                if after_year and year <= after_year:
-                    continue
-
-                results.append(
-                    {
-                        **_serialize(s),
-                        "years_available": _calculate_years_available(
-                            s.data_available_since
-                        ),
-                    }
-                )
-            except (ValueError, IndexError):
-                continue
-
-        results.sort(key=lambda x: x["data_available_since"] or "9999")
         return build_mcp_success_response(
             f"{len(results)} estación(es) encontrada(s) para los filtros de disponibilidad de datos aplicados",
-            {"stations": results},
+            availability.model_dump() if availability else {"stations": []},
         )
 
     @mcp.tool()
@@ -356,10 +504,24 @@ def register_station_tools(mcp):
         ] = None,
     ) -> dict:
         """
-        Filtro avanzado que combina múltiples criterios en una sola llamada.
-        USA ESTA TOOL cuando el usuario especifique dos o más condiciones simultáneas.
-        PREFIERE esta tool sobre encadenar múltiples tools de filtro.
-        Ejemplo: meteorológicas activas en Arequipa sobre 2000 msnm con datos desde antes de 2020.
+        Filtra estaciones SENAMHI combinando varios criterios en una sola consulta.
+
+        Úsala cuando el usuario especifique dos o más condiciones al mismo tiempo,
+        por ejemplo ubicación, tipo de estación, estado operativo, altitud y
+        disponibilidad histórica. Esta tool evita encadenar filtros separados y
+        devuelve directamente las estaciones que cumplen todos los criterios.
+
+        Criterios disponibles:
+        departamento, provincia, tipo de estación, estado operativo, altitud mínima,
+        altitud máxima y año máximo de inicio de datos.
+
+        Ejemplos de intención:
+        - estaciones meteorológicas en Arequipa sobre 2000 msnm
+        - estaciones REAL en Puno con datos desde antes de 2020
+        - estaciones hidrológicas de una provincia con rango altitudinal específico
+
+        Si la consulta solo tiene un criterio simple, usa la tool específica de
+        ubicación, altitud o disponibilidad.
         """
         results = []
 

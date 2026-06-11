@@ -11,14 +11,38 @@ def register_stats_tools(mcp):
 
     @mcp.tool()
     def stations_count() -> dict:
-        """Devuelve el número total de estaciones disponibles en el scraper."""
+        """
+        Devuelve el número total de estaciones SENAMHI disponibles en el catálogo local.
+
+        Úsala cuando el usuario pregunte cuántas estaciones existen en Garúa, cuántas
+        estaciones puede consultar el scraper o necesite una cifra global rápida del
+        inventario. Esta tool no agrupa ni filtra resultados; solo retorna el total.
+
+        Para desgloses por tipo, estado, departamento o ubicación administrativa,
+        usa stations_summary, get_departments_summary o get_location_hierarchy.
+        """
         return build_mcp_success_response(
             f"Total de estaciones: {len(stations)}", {"total_stations": len(stations)}
         )
 
     @mcp.tool()
     def stations_summary() -> dict:
-        """Devuelve un resumen con el conteo de estaciones por tipo y estado."""
+        """
+        Devuelve un resumen global de estaciones por tipo y estado operativo.
+
+        Úsala cuando el usuario quiera una visión general del inventario SENAMHI:
+        cuántas estaciones hay en total, cuántas son meteorológicas o hidrológicas,
+        y cómo se distribuyen según su estado operativo. Es útil para reportes
+        rápidos, diagnóstico del catálogo o contexto antes de aplicar filtros.
+
+        La respuesta incluye:
+        - total de estaciones
+        - conteo por tipo de estación
+        - conteo por estado operativo
+
+        Para estadísticas por departamento, altitud promedio o lista de provincias,
+        usa get_departments_summary.
+        """
         summary = {
             "total": len(stations),
             "by_type": {"M": 0, "H": 0, "unknown": 0},
@@ -36,11 +60,22 @@ def register_stats_tools(mcp):
     @mcp.tool()
     def get_departments_summary() -> dict:
         """
-        Devuelve un resumen estadístico agrupado por departamento:
-        - Cantidad total de estaciones
-        - Estaciones por tipo (meteorológicas/hidrológicas)
-        - Altitud promedio, mínima y máxima
-        - Lista de provincias
+        Devuelve estadísticas de estaciones agrupadas por departamento del Perú.
+
+        Úsala cuando el usuario quiera comparar departamentos, saber qué regiones
+        tienen más estaciones, identificar cobertura meteorológica o hidrológica por
+        departamento, revisar estaciones activas o explorar rangos de altitud por
+        región.
+
+        Para cada departamento devuelve:
+        - total de estaciones
+        - cantidad de estaciones meteorológicas e hidrológicas
+        - cantidad de estaciones activas o automáticas
+        - altitud promedio, mínima y máxima cuando exista información de altitud
+        - lista de provincias con estaciones registradas
+
+        Esta tool resume por departamento. Si el usuario necesita navegar la
+        estructura Departamento -> Provincia -> Distrito, usa get_location_hierarchy.
         """
         summary = defaultdict(
             lambda: {
@@ -96,9 +131,20 @@ def register_stats_tools(mcp):
     @mcp.tool()
     def get_location_hierarchy() -> dict:
         """
-        Devuelve la estructura jerárquica completa de ubicaciones:
-        Departamento → Provincias → Distritos con conteo de estaciones en cada nivel.
-        Útil para explorar la distribución geográfica de estaciones.
+        Devuelve la jerarquía administrativa de ubicaciones con conteos de estaciones.
+
+        Úsala cuando el usuario quiera explorar dónde existen estaciones SENAMHI por
+        departamento, provincia y distrito, o cuando necesite construir una vista tipo
+        árbol, selector geográfico o mapa administrativo. Esta tool no devuelve la
+        ficha de cada estación; devuelve conteos agregados por nivel geográfico.
+
+        La estructura de salida es:
+        Departamento -> Provincias -> Distritos, con total_stations en departamento
+        y provincia, y conteo de estaciones por distrito.
+
+        Para métricas estadísticas por departamento como altitud promedio, estaciones
+        activas o separación meteorológica/hidrológica, usa get_departments_summary.
+        Para obtener estaciones concretas de una ubicación, usa filter_stations_by_location.
         """
         hierarchy = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 

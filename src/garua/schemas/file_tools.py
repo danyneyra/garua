@@ -3,6 +3,7 @@ from mcp.types import TextContent
 
 from garua.models.file_tools import CsvPreviewResponse, ExtractFilesResponse
 from garua.schemas.mcp import build_files_info
+from garua.schemas.scraping import _append_open_file_options
 
 
 def build_extracted_data_success_response(
@@ -30,6 +31,7 @@ def build_extracted_data_success_response(
         source_files_info, resource_links = build_files_info(
             source_files, kind="source_file"
         )
+        message = _append_open_file_options(message, source_files_info)
 
         if resource_links:
             content.extend(resource_links)

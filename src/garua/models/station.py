@@ -1,5 +1,9 @@
+"""
+Modelos de datos para representar estaciones meteorológicas e hidrológicas del SENAMHI.
+Estos modelos se utilizan para estructurar la información de las estaciones, incluyendo su ubicación, categoría, tipo, estado operativo y disponibilidad de datos. También se incluyen validaciones para asegurar la integridad de los datos y métodos auxiliares para facilitar el acceso a la información relevante."""
+
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List
+from typing import Annotated, Optional, List
 from enum import Enum
 
 
@@ -152,3 +156,29 @@ class StationSummary(BaseModel):
     category: StationCategory = Field(..., description="Categoría de la estación")
     type: StationType = Field(..., description="Tipo de estación")
     status: StationStatus = Field(..., description="Estado operativo")
+
+
+class StationDataAvailability(BaseModel):
+    """Modelo para representar la disponibilidad de datos de una estación."""
+
+    name: str = Field(..., description="Nombre de la estación")
+    code: str = Field(..., description="Código único de la estación")
+    data_available_since: Optional[str] = Field(
+        None, description="Fecha desde la cual hay datos disponibles"
+    )
+    years_available: Optional[int] = Field(
+        None, description="Cantidad de años de datos disponibles"
+    )
+
+
+class StationDataAvailabilityResponse(BaseModel):
+    """Modelo para representar la respuesta de disponibilidad de datos, que puede incluir una estación puntual o un conjunto filtrado."""
+
+    station: Annotated[
+        Optional[StationDataAvailability],
+        Field(description="Disponibilidad de datos para una estación específica"),
+    ] = None
+    stations: Annotated[
+        Optional[List[StationDataAvailability]],
+        Field(description="Lista de disponibilidad de datos para estaciones filtradas"),
+    ] = None

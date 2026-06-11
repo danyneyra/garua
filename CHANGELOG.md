@@ -1,100 +1,84 @@
-# 📋 Changelog - Garúa
+# Changelog - Garúa
 
-## [0.30.0] - 2026-05-30
+Todos los cambios relevantes del proyecto se documentan en este archivo.
 
-### 🎉 Primera Versión Pública
+## [0.30.0] - 2026-06-11
 
-**Renombramiento del Proyecto:**
-- Cambio de nombre de `senamhi-scraper` a `garua`
-- Nueva identidad de marca conectada con [garua.app](https://garua.app)
-- Garúa: llovizna fina característica del clima peruano 🌧️🇵🇪
+### Primera versión pública como Garúa
 
-**Características Principales:**
+- Renombramiento del proyecto de `senamhi-scraper` a `garua`.
+- Nueva identidad conectada con [garua.app](https://garua.app).
+- Paquete preparado para publicación como CLI y servidor MCP.
+- Versión alineada entre `pyproject.toml` y `src/garua/settings.py`.
 
-### 🤖 Servidor MCP
-- 16 herramientas organizadas en 4 categorías
-- Compatible con VS Code, Claude Desktop, Cursor
-- Protocolo stdio para comunicación eficiente
+### CLI
 
-### 🔍 Búsqueda y Filtrado (7 tools)
-- `search_stations` - Búsqueda por nombre
-- `get_station_info` - Información detallada
-- `find_stations_near` - Búsqueda geográfica
-- `filter_stations_by_location` - Filtro por ubicación
-- `filter_stations_by_altitude` - Filtro por altitud
-- `check_data_availability` - Disponibilidad de datos
-- `filter_stations_advanced` - Filtro multi-criterio
+- Se documenta Garúa como app interactiva de terminal: ejecutar `garua` abre el menú guiado.
+- Se mantiene el uso por parámetros para flujos automatizados:
+  - `garua --search Cabana`
+  - `garua --station 108047 --mode month --year 2025 --month 7`
+- Se agrega captura de la interfaz CLI en `docs/img/garua-cli-ui.jpg`.
 
-### 📊 Estadísticas (5 tools)
-- `stations_count` - Conteo total
-- `stations_summary` - Resumen por tipo
-- `get_all_stations` - Lista completa
-- `get_departments_summary` - Estadísticas departamentales
-- `get_location_hierarchy` - Jerarquía geográfica
+### Servidor MCP
 
-### 📁 Gestión de Archivos (3 tools)
-- `list_downloaded_files` - Listado con filtros opcionales
-- `read_csv_preview` - Vista previa de datos con filtrado
-- `extract_month_from_csv` - Extracción de periodos específicos
+- Servidor MCP ejecutable con `garua-mcp`.
+- Referencia actualizada a 21 tools MCP generadas desde docstrings del codigo.
+- Configuración documentada por cliente:
+  - VS Code con GitHub Copilot.
+  - Claude Desktop.
+  - Codex con `config.toml`.
+  - Otros clientes compatibles con MCP.
 
-### ⬇️ Descarga (1 tool)
-- `scrape_station_data` - Descarga desde SENAMHI con bypass Cloudflare Turnstile
+### Documentación
 
-**Tecnologías:**
-- Python 3.11+
-- FastMCP 3.3.1 (protocolo MCP)
-- Zendriver 0.7.2 (bypass Cloudflare Turnstile automático)
-- BeautifulSoup4 4.12.3 (parsing HTML)
-- Pydantic 2.10.6 (validación de datos)
+- README reducido a portada de proyecto para GitHub/PyPI.
+- Nueva estructura de documentación en `docs/`:
+  - `quickstart.md`
+  - `installation.md`
+  - `usage/cli.md`
+  - `usage/mcp.md`
+  - `usage/examples.md`
+  - guías por tarea en `docs/guides/`
+  - referencia técnica en `docs/reference/`
+  - notas de desarrollo en `docs/development/`
+- Se agregan guías para buscar estaciones, descargar datos, explorar CSV, resumir periodos, comparar periodos, validar calidad y recomendar estaciones.
+- `INSTALL.md` queda como puente corto hacia `docs/installation.md`.
+- `docs/COMPARISON_SYSTEM.md` y `docs/RECOMMENDATION_SYSTEM.md` quedan como documentos puente hacia las nuevas guías.
+- Se agrega `CONTRIBUTING.md` para colaboracion open source.
 
-**Instalación:**
-```bash
-pip install garua
-```
+### Empaquetado
 
-**Uso:**
+- `pyproject.toml` actualizado con metadata de publicación:
+  - descripción orientada a CLI interactiva + MCP.
+  - URLs del repositorio `danyneyra/garua`.
+  - classifiers y keywords adicionales.
+  - `license = "MIT"`.
+- Se declaran dependencias directas usadas por el paquete:
+  - `mcp`
+  - `rich`
+- El `sdist` incluye documentación nueva, changelog, contributing y el script generador de referencia.
 
-*CLI (Línea de comandos):*
-```bash
-garua --help
-```
+### Herramientas destacadas
 
-*MCP con VS Code + Copilot:*
-```
-@garua busca estaciones en Lima
-@garua descarga datos de febrero 2025
-```
+- Búsqueda y filtrado de estaciones SENAMHI.
+- Recomendación de estaciones por distancia, historial, estado operativo y altitud.
+- Descarga histórica desde SENAMHI a CSV.
+- Listado, preview y extracción de archivos CSV locales.
+- Resumen de periodos individuales.
+- Comparación de dos o mas periodos.
+- Detección de anomalías y problemas de calidad.
+- Estadísticas por inventario, departamento y jerarquía administrativa.
 
-*MCP con Claude Desktop:*
-```
-¿Qué estaciones hay disponibles en Cajamarca?
-Descarga datos de enero 2025 de la estación Cabana
-```
+## Historia del proyecto
 
-**Documentación:**
-- [INSTALL.md](INSTALL.md) - Guía de instalación por cliente MCP
-- [MCP_EXPLAINED.md](MCP_EXPLAINED.md) - Protocolo MCP explicado
-- [DISTRIBUTION.md](DISTRIBUTION.md) - Guía de distribución
-- [PUBLISHING.md](PUBLISHING.md) - Publicación en PyPI
+Garua nació como una herramienta CLI interactiva para descargar datos hidrometeorológicos del SENAMHI. Con el tiempo evolucionó hacia una libreria modular y servidor MCP para que asistentes compatibles puedan buscar estaciones, descargar datos, resumir, comparar y validar información sin que el usuario tenga que escribir scripts.
 
-**Enlaces:**
-- 🌐 Website: https://garua.app
-- 📦 PyPI: https://pypi.org/project/garua/
-- 🔗 GitHub: https://github.com/danyneyra/senamhi-scraper
-- 🐛 Issues: https://github.com/danyneyra/senamhi-scraper/issues
+### Evolución
 
----
+- 2024: desarrollo inicial como `senamhi-scraper`.
+- 2025: incorporacion de automatizacion con Zendriver para trabajar con el sitio de SENAMHI.
+- 2026: refactorizacion modular, servidor MCP y preparación para publicación open source como `garua`.
 
-## Historia del Proyecto
+### Por que 0.30.0
 
-Este proyecto anteriormente se llamaba `senamhi-scraper`. La transición a `garua` marca el inicio de la distribución pública y la reconexión con la plataforma web [garua.app](https://garua.app).
-
-**Evolución:**
-- **2024**: Desarrollo inicial como `senamhi-scraper`
-- **2025**: Implementación de bypass Cloudflare Turnstile con Zendriver
-- **2026**: Refactorización modular y lanzamiento como servidor MCP
-- **2026-05-24**: Renombramiento a `garua` v0.30.0 y primera versión pública
-
-**¿Por qué 0.30.0?**
-- Versión de la suerte elegida por el autor 🍀
-- Marca el comienzo de una nueva etapa del proyecto
+La versión `0.30.0` marca el inicio de una etapa pública del proyecto bajo el nombre Garua.

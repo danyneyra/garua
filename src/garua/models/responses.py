@@ -26,6 +26,10 @@ class FileInfo(BaseModel):
         Optional[str],
         Field(None, description="Tipo MIME del archivo, e.g., 'text/csv'"),
     ] = None
+    size_bytes: Annotated[
+        Optional[int],
+        Field(None, description="Tamaño del archivo en bytes"),
+    ] = None
     description: Annotated[
         Optional[str], Field(None, description="Descripción adicional del archivo")
     ] = None

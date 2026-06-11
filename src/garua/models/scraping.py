@@ -1,3 +1,7 @@
+"""Modelos para operaciones de scraping"""
+
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 from typing import Optional, Annotated
 
@@ -115,6 +119,16 @@ class ScrapingSuccessResponse(SuccessResponse):
         None,
         description="Fuente de donde se extrajeron los datos (e.g., 'cache', 'web')",
     )
+    display_hint: Annotated[
+        Optional[str],
+        Field(
+            None,
+            description=(
+                "Sugerencia de visualización para el cliente. "
+                "Puede ser 'table', 'chart', 'file_list', etc., dependiendo de cómo se quieran mostrar los datos."
+            ),
+        ),
+    ] = "Mostrar los archivos CSV generados al usuario, con opciones para abrirlos o descargarlos."
 
 
 class ScrapingErrorResponse(ErrorResponse):
@@ -141,3 +155,35 @@ class ScrapingServiceErrorResponse(ErrorResponse):
     """Resultado fallido del servicio de scraping, sin dependencias MCP."""
 
     pass
+
+
+class ScrapingBrowserResult(BaseModel):
+    """Resultado de una operación de scraping"""
+
+    station_code: str = Field(..., description="Código de la estación procesada")
+    success: bool = Field(..., description="¿La operación fue exitosa?")
+    records_count: int = Field(0, description="Número de registros procesados")
+    files_generated: list[str] = Field(
+        default_factory=list, description="Archivos generados"
+    )
+    errors: list[str] = Field(default_factory=list, description="Errores encontrados")
+    processing_time: Optional[float] = Field(
+        None, description="Tiempo de procesamiento en segundos"
+    )
+    timestamp: datetime = Field(
+        default_factory=datetime.now, description="Timestamp de la operación"
+    )
+
+    def add_error(self, error: str) -> None:
+        """Añade un error a la lista"""
+        self.errors.append(error)
+        self.success = False
+
+    def add_file(self, filepath: str) -> None:
+        """Añade un archivo generado a la lista"""
+        self.files_generated.append(filepath)
+
+    def get_summary(self) -> str:
+        """Retorna un resumen legible del resultado"""
+        status = "Exitoso" if self.success else "Falló"
+        return f"{status} - {self.records_count} registros, {len(self.files_generated)} archivos"

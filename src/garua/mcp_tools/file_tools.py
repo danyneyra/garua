@@ -202,22 +202,28 @@ def register_file_tools(mcp):
         ] = True,
     ) -> dict | list[dict]:
         """
-        Lista archivos CSV ya descargados en la carpeta CSV configurada.
+        Lista archivos CSV descargados localmente por Garúa.
 
-        Usa esta tool cuando el usuario pregunte qué datos existen localmente
-        o cuando necesites verificar si un periodo ya está descargado.
+        Úsala cuando el usuario quiera saber qué archivos existen en la carpeta CSV,
+        verificar si una estación o periodo ya fue descargado, encontrar la ruta de
+        un archivo antes de previsualizarlo, o confirmar si un CSV consolidado cubre
+        un mes específico.
 
-        Soporta carpetas nuevas:
-        - Cajabamba_107008_M_CO/
+        Puede filtrar por estación, código, tipo, categoría, año y mes. Cuando se
+        usa year + month, también puede incluir archivos anuales o multianuales que
+        cubren ese mes si include_covering_files=True.
 
-        Y carpetas legacy:
-        - Cajabamba_M_CO/
-        - Cajabamba/
+        Soporta estructuras nuevas y legacy de carpetas:
+        - Nombre_codigo_tipo_categoria/
+        - Nombre_tipo_categoria/
+        - Nombre/
 
-        Si se solicita year + month, también puede devolver archivos consolidados
-        que cubren ese mes, por ejemplo:
-        - Cajabamba-2025.csv
-        - Cajabamba-2022-2025.csv
+        La respuesta incluye metadatos útiles como path, relative_path, filename,
+        periodo detectado y señales para saber si el archivo puede usarse para
+        extraer el mes solicitado.
+
+        No descarga datos desde SENAMHI. Para descargar o actualizar archivos usa
+        scrape_station_data. Para ver filas del CSV usa read_csv_preview.
         """
 
         if month is not None and year is None:
@@ -340,34 +346,27 @@ def register_file_tools(mcp):
         ] = 20,
     ) -> dict:
         """
-        Muestra una vista previa de un CSV descargado.
+        Muestra una vista previa tabular de un CSV descargado localmente.
 
-        Usa esta tool cuando el usuario pida ver el contenido, datos o vista previa
-        de un archivo CSV ya descargado.
+        Úsala cuando el usuario quiera inspeccionar el contenido de un archivo CSV,
+        validar columnas, revisar primeras filas, confirmar si un periodo tiene datos
+        o mirar una muestra antes de resumir, comparar o diagnosticar calidad.
 
-        Formas de uso:
-        1. Ruta directa recomendada:
-        read_csv_preview(file_path='C:/Users/.../Garua/csv/Cajabamba_107008_M_CO/Cajabamba-2025.csv')
+        Formas recomendadas de uso:
+        - file_path: usa la ruta devuelta por list_downloaded_files.
+        - relative_path: compatibilidad con rutas relativas legacy.
+        - station_code + year/month: búsqueda automática del archivo más apropiado.
+        - station_name + type/category + year/month: búsqueda por metadatos cuando
+          no se tiene una ruta directa.
 
-        2. Ruta relativa legacy:
-        read_csv_preview(relative_path='Cajabamba_107008_M_CO/Cajabamba-2025.csv')
+        Si el archivo encontrado es anual o multianual y se indica year/month, la
+        vista previa se filtra internamente al periodo solicitado. max_rows y
+        max_columns limitan el tamaño de salida para mantener una respuesta legible
+        para el cliente MCP.
 
-        3. Búsqueda inteligente:
-        read_csv_preview(station_code='107008', year=2025, month=12)
-
-        4. Búsqueda por estación:
-        read_csv_preview(
-            station_name='Cajabamba',
-            station_type='M',
-            station_category='CO',
-            year=2025,
-            month=12
-        )
-
-        Si el archivo encontrado es consolidado, filtra internamente el periodo pedido.
-
-        No uses esta tool para descargar datos. Para descargar usa scrape_station_data.
-        No la uses automáticamente tras scrape_station_data, porque esa tool ya devuelve rutas.
+        No descarga datos ni calcula métricas. Para obtener archivos nuevos usa
+        scrape_station_data. Para métricas climáticas o hidrológicas usa las tools
+        de resumen, comparación o anomalías.
         """
         if month is not None and year is None:
             return build_mcp_error_response(
@@ -501,27 +500,27 @@ def register_file_tools(mcp):
         ] = False,
     ) -> dict:
         """
-        Extrae un mes específico desde un CSV consolidado y lo guarda como archivo mensual.
+        Extrae un mes desde un CSV anual o multianual y crea un CSV mensual.
 
-        Usa esta tool cuando ya existe un archivo anual o multianual y el usuario quiere
-        generar un CSV mensual independiente.
+        Úsala cuando ya exista localmente un archivo consolidado que cubre varios
+        meses y el usuario necesite un archivo mensual independiente para compartir,
+        revisar, procesar o reutilizar. La tool busca el archivo fuente de forma
+        automática si se proporcionan estación y periodo, o usa source_file cuando
+        se indique explícitamente.
 
-        Formas de uso:
-        1. Con source_file:
-        extract_month_from_csv(
-            source_file='Cajabamba_107008_M_CO/Cajabamba-2025.csv',
-            year=2025,
-            month=5
-        )
+        Formas recomendadas de uso:
+        - source_file + year + month: extracción directa desde un CSV conocido.
+        - station_code + year + month: búsqueda automática de un consolidado que
+          cubra el mes.
+        - station_name/type/category + year + month: búsqueda por metadatos cuando
+          no se tiene el código.
 
-        2. Búsqueda automática:
-        extract_month_from_csv(
-            station_code='107008',
-            year=2025,
-            month=5
-        )
+        Si el archivo mensual ya existe, la operación falla de forma segura salvo
+        que overwrite=True. La respuesta incluye cantidad de filas extraídas, archivo
+        origen y archivo generado.
 
-        No uses esta tool para descargar desde SENAMHI. Para descargar usa scrape_station_data.
+        No descarga desde SENAMHI. Si no hay un consolidado local que cubra el mes,
+        usa scrape_station_data para descargar el periodo requerido.
         """
         csv_dir = settings.CSV_DIR
 
