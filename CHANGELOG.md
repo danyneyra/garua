@@ -56,7 +56,7 @@ Todos los cambios relevantes del proyecto se documentan en este archivo.
 - Se declaran dependencias directas usadas por el paquete:
   - `mcp`
   - `rich`
-- El `sdist` incluye documentación nueva, changelog, contributing y el script generador de referencia.
+- El `sdist` queda liviano: incluye paquete fuente, README, changelog, contributing, licencia y metadata, sin empaquetar `docs/` ni assets pesados.
 
 ### Herramientas destacadas
 

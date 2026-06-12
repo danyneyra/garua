@@ -28,7 +28,7 @@ Requiere Python 3.11+ (Recomendable 3.13).
 pip install garua
 ```
 
-Ver la guía completa en [docs/installation.md](docs/installation.md).
+Ver la guía completa en [docs/installation.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/installation.md).
 
 ## Uso rápido
 
@@ -39,7 +39,7 @@ garua
 ```
 
 <p align="center">
-  <img src="docs/img/garua-cli-ui.jpg" alt="Interfaz interactiva de Garua en la terminal" width="820">
+  <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-cli-ui.jpg" alt="Interfaz interactiva de Garua en la terminal" width="820">
 </p>
 
 También puedes ejecutar acciones directas con parámetros.
@@ -69,18 +69,18 @@ Garua también funciona como servidor MCP: puedes pedir tareas en lenguaje natur
 <details open>
   <summary><strong>Preview en Codex</strong></summary>
   <p align="center">
-    <img src="docs/img/garua-codex.gif" alt="Preview de Garua MCP en Codex" width="820">
+    <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-codex.gif" alt="Preview de Garua MCP en Codex" width="820">
   </p>
 </details>
 
 <details>
   <summary><strong>Preview en Claude Desktop</strong></summary>
   <p align="center">
-    <img src="docs/img/garua-claude.gif" alt="Preview de Garua MCP en Claude Desktop" width="820">
+    <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-claude.gif" alt="Preview de Garua MCP en Claude Desktop" width="820">
   </p>
 </details>
 
-Ver configuración completa en [docs/installation.md](docs/installation.md) y ejemplos en [docs/usage/mcp.md](docs/usage/mcp.md).
+Ver configuración completa en [docs/installation.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/installation.md) y ejemplos en [docs/usage/mcp.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/mcp.md).
 
 Ejemplos en un cliente MCP:
 
@@ -94,23 +94,23 @@ Recomienda una estacion para lat -7.61, lon -77.82 con altitud 3000 msnm
 
 ## Documentación
 
-- [Inicio de documentación](docs/index.md)
-- [Primeros pasos](docs/quickstart.md)
-- [Instalación](docs/installation.md)
-- [Uso CLI](docs/usage/cli.md)
-- [Uso MCP](docs/usage/mcp.md)
-- [Ejemplos completos](docs/usage/examples.md)
-- [Referencia de tools MCP](docs/reference/tools.md)
+- [Inicio de documentación](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/index.md)
+- [Primeros pasos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/quickstart.md)
+- [Instalación](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/installation.md)
+- [Uso CLI](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/cli.md)
+- [Uso MCP](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/mcp.md)
+- [Ejemplos completos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/examples.md)
+- [Referencia de tools MCP](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/reference/tools.md)
 
 ## Guías principales
 
-- [Buscar estaciones](docs/guides/buscar-estaciones.md)
-- [Descargar datos](docs/guides/descargar-datos.md)
-- [Explorar CSV](docs/guides/explorar-csv.md)
-- [Resumir un período](docs/guides/resumir-periodo.md)
-- [Comparar periodos](docs/guides/comparar-periodos.md)
-- [Validar calidad de datos](docs/guides/validar-datos.md)
-- [Recomendar estaciones](docs/guides/recomendar-estacion.md)
+- [Buscar estaciones](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/buscar-estaciones.md)
+- [Descargar datos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/descargar-datos.md)
+- [Explorar CSV](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/explorar-csv.md)
+- [Resumir un período](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/resumir-periodo.md)
+- [Comparar periodos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/comparar-periodos.md)
+- [Validar calidad de datos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/validar-datos.md)
+- [Recomendar estaciones](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/recomendar-estacion.md)
 
 ## Estado del proyecto
 
@@ -126,8 +126,8 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
-Mas detalles en [docs/development/architecture.md](docs/development/architecture.md).
+Mas detalles en [docs/development/architecture.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/development/architecture.md).
 
 ## Licencia
 
-MIT. Ver [LICENSE](LICENSE).
+MIT. Ver [LICENSE](https://github.com/danyneyra/senamhi-scraper/blob/dev/LICENSE).

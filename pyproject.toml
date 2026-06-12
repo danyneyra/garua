@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "garua"
-version = "0.29.5"
+version = "0.29.7"
 description = "CLI interactiva y servidor MCP para consultar estaciones SENAMHI y descargar datos hidrometeorológicos históricos del Perú."
 readme = "README.md"
 license = "MIT"
@@ -82,17 +82,6 @@ packages = ["src/garua"]
 [tool.hatch.build.targets.sdist]
 include = [
     "/src/garua",
-    "/docs/index.md",
-    "/docs/quickstart.md",
-    "/docs/installation.md",
-    "/docs/COMPARISON_SYSTEM.md",
-    "/docs/RECOMMENDATION_SYSTEM.md",
-    "/docs/usage",
-    "/docs/guides",
-    "/docs/reference",
-    "/docs/development",
-    "/docs/img",
-    "/scripts/generate_tools_reference.py",
     "/README.md",
     "/CHANGELOG.md",
     "/CONTRIBUTING.md",
