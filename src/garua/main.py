@@ -1,15 +1,14 @@
 import asyncio
 import argparse
 import sys
-from garua.settings import ensure_output_dirs, ERROR, YEAR_MAX, YEAR_MIN
-from garua.models.scraping import ScrapingQueryParams
-from garua.scraping.query_modes import get_user_query_mode, get_station_code
-from garua.scraping.scraper import scraping_main
-from garua.services.station import (
-    find_station_by_code,
-    search_and_print_stations,
+from garua.settings import (
+    ERROR,
+    PROJECT_NAME,
+    VERSION,
+    YEAR_MAX,
+    YEAR_MIN,
+    ensure_output_dirs,
 )
-from garua.utils.ui_console import ui
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -26,6 +25,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
             "  python main.py -s 108047 -m year  -y 2024 --individual\n"
             "  python main.py -s 108047 -m period --start 2020 --end 2025\n"
         ),
+    )
+
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"{PROJECT_NAME} {VERSION}",
+        help="Muestra la versión instalada y sale.",
     )
 
     # Búsqueda standalone
@@ -144,6 +150,11 @@ def validate_cli_args(args: argparse.Namespace) -> None:
 
 
 async def main(args: argparse.Namespace | None = None):
+    from garua.models.scraping import ScrapingQueryParams
+    from garua.scraping.query_modes import get_station_code, get_user_query_mode
+    from garua.scraping.scraper import scraping_main
+    from garua.services.station import find_station_by_code
+    from garua.utils.ui_console import ui
 
     # Validar carpetas
     ensure_output_dirs()
@@ -228,6 +239,9 @@ def cli() -> int:
 
     # --search es standalone: lista resultados y sale
     if args.search:
+        from garua.services.station import search_and_print_stations
+        from garua.utils.ui_console import ui
+
         # Imprimir bienvenida
         ui.print_welcome()
         # Ejecutar búsqueda e imprimir resultados
@@ -239,6 +253,8 @@ def cli() -> int:
         asyncio.run(main(args))
         return 0
     except (KeyboardInterrupt, EOFError):
+        from garua.utils.ui_console import ui
+
         ui.print_goodbye()
         return 0
 

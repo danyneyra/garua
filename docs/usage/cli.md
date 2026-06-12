@@ -31,6 +31,12 @@ Usa parámetros cuando ya sabes que estación y período necesitas, o cuando qui
 garua --help
 ```
 
+## Ver versión
+
+```bash
+garua --version
+```
+
 ## Buscar estaciones
 
 ```bash
@@ -41,6 +47,8 @@ garua --search 108047
 Usa la búsqueda antes de descargar si no conoces el código interno de la estación.
 
 ## Descargar un mes
+
+La descarga abre un navegador local para consultar SENAMHI y superar Cloudflare Turnstile cuando aparece.
 
 ```bash
 garua --station 108047 --mode month --year 2025 --month 7

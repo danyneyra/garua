@@ -22,6 +22,10 @@ garua-mcp
 
 Si el cliente no encuentra el comando, usa la ruta absoluta al ejecutable o al Python del entorno virtual.
 
+## Nota sobre descargas
+
+Cuando pidas descargar datos, Garua abrirá un navegador local para scrapear el sitio de SENAMHI y superar la verificación Cloudflare Turnstile cuando aparezca. Esto es esperado en la tool de descarga.
+
 ## Prompts útiles
 
 ```text

@@ -26,24 +26,7 @@ downloads/
 temp/
 test/
 reports/
-docs/*
-!docs/index.md
-!docs/quickstart.md
-!docs/installation.md
-!docs/COMPARISON_SYSTEM.md
-!docs/RECOMMENDATION_SYSTEM.md
-!docs/usage/
-!docs/usage/**
-!docs/guides/
-!docs/guides/**
-!docs/img/
-!docs/img/**
-!docs/reference/
-!docs/reference/**
-!docs/development/
-!docs/development/**
 exports/
-config.local.py
 
 
 # Logs

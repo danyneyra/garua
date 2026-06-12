@@ -6,6 +6,7 @@ La CLI se instala como `garua`.
 
 ```bash
 garua --help
+garua --version
 garua --search QUERY
 garua --station CODIGO --mode month --year ANO --month MES
 garua --station CODIGO --mode year --year ANO
@@ -16,6 +17,7 @@ garua --station CODIGO --mode period --start ANO --end ANO
 
 | Opcion | Uso |
 | --- | --- |
+| `--version` | Muestra la versión instalada y sale. |
 | `--search QUERY` | Busca estaciones por código exacto o nombre parcial. |
 | `--station CODIGO` | Código interno de estación SENAMHI. |
 | `--mode month` | Descarga un mes. Requiere `--year` y `--month`. |

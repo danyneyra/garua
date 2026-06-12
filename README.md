@@ -61,24 +61,23 @@ Ejecutar el servidor MCP:
 ```bash
 garua-mcp
 ```
+> Importante: las descargas abren un navegador local para scrapear el sitio de SENAMHI y superar la verificación Cloudflare Turnstile cuando aparece.
 
 ## Preview MCP
 
 Garua también funciona como servidor MCP: puedes pedir tareas en lenguaje natural y el cliente usa las tools de Garua para buscar estaciones, descargar datos o analizar CSV.
 
-<details open>
-  <summary><strong>Preview en Codex</strong></summary>
-  <p align="center">
-    <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-codex.gif" alt="Preview de Garua MCP en Codex" width="820">
-  </p>
-</details>
+### Preview en Codex (ChatGPT)
 
-<details>
-  <summary><strong>Preview en Claude Desktop</strong></summary>
-  <p align="center">
-    <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-claude.gif" alt="Preview de Garua MCP en Claude Desktop" width="820">
-  </p>
-</details>
+<p align="center">
+  <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-codex.gif" alt="Preview de Garua MCP en Codex" width="820">
+</p>
+
+### Preview en Claude Desktop
+
+<p align="center">
+  <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-claude.gif" alt="Preview de Garua MCP en Claude Desktop" width="820">
+</p>
 
 Ver configuración completa en [docs/installation.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/installation.md) y ejemplos en [docs/usage/mcp.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/mcp.md).
 

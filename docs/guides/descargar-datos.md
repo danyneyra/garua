@@ -8,6 +8,10 @@ Descarga datos históricos del SENAMHI y los guarda como CSV para análisis loca
 
 Úsalo cuando ya conoces la estación y necesitas obtener un mes, un año completo o un rango de años.
 
+## Importante
+
+La descarga abre un navegador local para acceder al sitio de SENAMHI, resolver o superar la verificación Cloudflare Turnstile cuando aparece, y capturar los datos necesarios para generar el CSV. Durante ese proceso el navegador puede permanecer abierto unos minutos.
+
 ## Ejemplo rápido
 
 ```bash
