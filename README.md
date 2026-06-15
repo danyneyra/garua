@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://garua.danyneyra.dev/">
-    <img alt="Logo de Garúa" src="https://github.com/danyneyra/garua/blob/main/docs/images/logo.svg">
+    <img alt="Logo de Garúa" src="https://github.com/danyneyra/garua/blob/main/docs/images/garua-logo.svg">
   </a>
 
   <p><strong>Garúa</strong> descarga, explora y analiza datos hidrometeorológicos oficiales del SENAMHI Perú.</p>
