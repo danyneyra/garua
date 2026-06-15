@@ -1,0 +1,109 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "garua"
+version = "0.30.0"
+description = "CLI interactiva y servidor MCP para consultar estaciones SENAMHI y descargar datos hidrometeorológicos históricos del Perú."
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Dany Daniel", email = "hi@danyneyra.dev" }
+]
+maintainers = [
+    { name = "Dany Daniel", email = "hi@danyneyra.dev" }
+]
+keywords = [
+    "garua",
+    "senamhi",
+    "meteorologia",
+    "peru",
+    "weather",
+    "climate",
+    "hydrology",
+    "mcp",
+    "model-context-protocol",
+    "cli",
+    "scraper",
+    "data-download",
+    "garua-app"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.12.3",
+    "fastmcp>=3.3.1",
+    "mcp>=1.27.1",
+    "pydantic>=2.13.4",
+    "requests>=2.34.2",
+    "rich>=15.0.0",
+    "zendriver>=0.15.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "mypy>=1.13.0",
+    "pytest>=8.0.0",
+]
+docs = [
+    "zensical>=0.0.45",
+]
+
+[project.urls]
+Homepage = "https://garua.danyneyra.dev"
+Documentation = "https://garua.danyneyra.dev"
+Repository = "https://github.com/danyneyra/garua"
+Issues = "https://github.com/danyneyra/garua/issues"
+Changelog = "https://github.com/danyneyra/garua/releases"
+Website = "https://garua.danyneyra.dev"
+
+[project.scripts]
+garua = "garua.main:cli"
+garua-mcp = "garua.mcp_server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/garua", "src/garua_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/garua",
+    "/src/garua_mcp",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/CONTRIBUTING.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311", "py312", "py313"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

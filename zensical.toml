@@ -1,0 +1,109 @@
+[project]
+site_name = "Garúa"
+site_url = "https://garua.danyneyra.dev"
+site_description = "Documentación de Garua: CLI y servidor MCP para trabajar con datos hidrometeorológicos oficiales del SENAMHI Perú."
+site_author = "Dany Daniel"
+copyright = "Dany Daniel :)"
+docs_dir = "docs"
+site_dir = "site"
+repo_url = "https://github.com/danyneyra/garua"
+repo_name = "danyneyra/garua"
+dev_addr = "localhost:8000"
+extra_css = ["stylesheets/extra.css"]
+extra_javascript = ["javascripts/terminal.js"]
+
+nav = [
+  {"Garúa" = "index.md"},
+  {"Primeros pasos" = [
+    "quickstart.md",
+    "installation.md",
+    "changelog.md",
+  ]},
+  {"Uso" = [
+    "usage/cli.md",
+    "usage/mcp.md",
+    "usage/examples.md",
+  ]},
+  {"Guías" = [
+    "guides/buscar-estaciones.md",
+    "guides/descargar-datos.md",
+    "guides/explorar-csv.md",
+    "guides/resumir-periodo.md",
+    "guides/comparar-periodos.md",
+    "guides/validar-datos.md",
+    "guides/recomendar-estacion.md",
+  ]},
+  {"Referencia" = [
+    "reference/tools.md",
+    "reference/cli.md",
+    "reference/environment.md",
+    "reference/output-files.md",
+    "reference/data-quality.md",
+  ]},
+  {"Desarrollo" = [
+    "development/architecture.md",
+    "development/mcp-server.md",
+    "development/contributing.md",
+  ]},
+]
+
+[project.theme]
+language = "es"
+font.text="DM Sans"
+logo = "images/logo.svg"
+favicon = "images/logo.svg"
+features = [
+  "navigation.instant",
+  "navigation.instant.progress",
+  "navigation.tracking",
+  "navigation.tabs",
+  "navigation.sections",
+  "navigation.top",
+  "navigation.footer",
+  "toc.follow",
+  "search.highlight",
+  "content.code.copy",
+  "content.code.select",
+  "content.code.annotate",
+  "content.footnote.tooltips",
+  "content.tooltips"
+]
+
+# Palette toggle for light mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "custom"
+accent = "custom"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+# Palette toggle for dark mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "custom"
+accent = "custom"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/danyneyra/garua"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/python"
+link = "https://pypi.org/project/garua/"
+
+
+[[project.extra.social]]
+icon = "fontawesome/brands/linkedin"
+link = "https://www.linkedin.com/in/danydanieln"
+
+
+[[project.extra.social]]
+icon = "fontawesome/brands/youtube"
+link = "https://www.youtube.com/@dannydanieln"
+
+[project.theme.icon]
+repo = "fontawesome/brands/github"

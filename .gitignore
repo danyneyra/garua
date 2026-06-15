@@ -6,7 +6,18 @@ __pycache__/
 .Python
 venv/
 dist/
+build/
+site/
+output/
+*.egg-info/
+.eggs/
 .venv
+
+
+# PyPI publishing
+.pypirc
+*.whl
+*.tar.gz
 
 # IDEs
 .vscode/
@@ -14,7 +25,9 @@ dist/
 # Project specific
 downloads/
 temp/
-config.local.py
+test/
+reports/
+exports/
 
 
 # Logs
