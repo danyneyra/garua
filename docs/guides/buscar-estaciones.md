@@ -1,3 +1,9 @@
+---
+icon: lucide/search
+tags:
+  - Buscar estaciones
+---
+
 # Buscar estaciones
 
 ## Qué resuelve
@@ -31,7 +37,7 @@ Busca estaciones meteorologicas en Cajamarca llamadas Cabana
 
 ## Resultado esperado
 
-Una lista de estaciones con nombre, código, tipo, categoria, estado, coordenadas, altitud y disponibilidad histórica.
+Una lista de estaciones con nombre, código, tipo, categoría, estado, coordenadas, altitud y disponibilidad histórica.
 
 ## Problemas comunes
 

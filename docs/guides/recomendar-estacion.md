@@ -1,3 +1,10 @@
+---
+icon: lucide/map
+tags:
+  - Recomendar estación
+  - ubicación
+---
+
 # Recomendar estación
 
 ## Que resuelve
@@ -13,7 +20,8 @@ Recomienda estaciones SENAMHI para un punto geográfico considerando distancia, 
 MCP:
 
 ```text
-Recomienda estaciones meteorologicas para lat -7.6133, lon -77.8204, con altitud 3000 msnm y al menos 5 anos de datos.
+Recomienda estaciones meteorologicas para lat -7.6133, lon -77.8204, 
+con altitud 3000 msnm y al menos 5 años de datos.
 ```
 
 ## Flujo recomendado

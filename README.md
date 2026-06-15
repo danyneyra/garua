@@ -1,9 +1,9 @@
 <div align="center">
-  <a href="https://garua.app/">
-    <img alt="Garua logo" src="https://www.garua.app/garua-logo.svg">
+  <a href="https://garua.danyneyra.dev/">
+    <img alt="Logo de Garúa" src="https://garua.danyneyra.dev/images/garua-logo.svg">
   </a>
 
-  <p><strong>Garua</strong> descarga, explora y analiza datos hidrometeorológicos oficiales del SENAMHI Perú.</p>
+  <p><strong>Garúa</strong> descarga, explora y analiza datos hidrometeorológicos oficiales del SENAMHI Perú.</p>
 </div>
 
 > Garúa es la llovizna fina característica de la costa peruana.
@@ -12,121 +12,164 @@
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-89e240?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-Garua es una herramienta open source para trabajar con estaciones meteorológicas e hidrológicas del SENAMHI. Permite buscar estaciones, descargar datos históricos en CSV, revisar archivos locales, resumir periodos, comparar meses o años, validar calidad de datos y recomendar estaciones cercanas a un punto geográfico.
+---
 
-Puedes usarlo de tres maneras:
+**Documentación:** [garua.danyneyra.dev](https://garua.danyneyra.dev)
 
-- **CLI interactiva**: ejecuta `garua` y navega por un menú en terminal.
-- **CLI con parámetros**: automatiza búsquedas y descargas en una sola línea.
-- **Servidor MCP**: integración con clientes como VS Code, Claude Desktop, Codex o cualquier cliente compatible con Model Context Protocol.
+**Código fuente:** [github.com/danyneyra/garua](https://github.com/danyneyra/garua)
+
+---
+
+Garúa es una herramienta de código abierto para trabajar con estaciones meteorológicas e hidrológicas del [SENAMHI]. Permite buscar estaciones, descargar datos históricos en CSV, revisar archivos locales, resumir periodos, comparar meses o años, validar calidad de datos y recomendar estaciones cercanas a un punto geográfico.
+
+## Qué puedes hacer
+
+| Tarea | Descripción |
+| --- | --- |
+| Buscar estaciones | Filtra estaciones por nombre, código, ubicación, tipo, altitud o cercanía a un punto geográfico. |
+| Descargar históricos | Obtén datos mensuales, anuales o multianuales en archivos CSV listos para revisar o procesar. |
+| Analizar periodos | Resume precipitación, temperatura, humedad, viento o nivel de río según el tipo de estación. |
+| Validar calidad | Detecta duplicados, fechas faltantes, valores `S/D`, trazas `T` y otros problemas frecuentes. |
+
+## Formas de uso
+
+Garúa puede usarse de tres maneras:
+
+- **App interactiva:** ejecuta `garua` y navega por un menú en terminal. Es ideal para explorar estaciones y descargar datos paso a paso.
+- **Comandos directos:** usa parámetros cuando ya conoces la estación y el periodo, o cuando quieres automatizar búsquedas y descargas.
+- **Servidor MCP:** conecta Garúa con VS Code, Claude Desktop, Codex u otros clientes de IA compatibles con [Model Context Protocol].
 
 ## Instalación rápida
 
-Requiere Python 3.11+ (Recomendable 3.13).
+Requisitos principales:
+
+- Python 3.11+.
+- Windows, macOS o Linux.
+- Google Chrome, Brave o Microsoft Edge para las descargas desde SENAMHI.
+
+Instala Garúa desde PyPI:
 
 ```bash
 pip install garua
 ```
 
-Ver la guía completa en [docs/installation.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/installation.md).
+También puedes instalarlo con `pipx` si quieres usarlo como herramienta global de terminal:
+
+```bash
+pipx install garua
+```
+
+Verifica la instalación:
+
+```bash
+garua --help
+garua --doctor
+```
+
+La guía completa está en [Instalación](https://garua.danyneyra.dev/installation/).
 
 ## Uso rápido
 
-Abrir la app interactiva en terminal:
+Abre la app interactiva:
 
 ```bash
 garua
 ```
 
 <p align="center">
-  <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-cli-ui.jpg" alt="Interfaz interactiva de Garua en la terminal" width="820">
+  <img src="https://garua.danyneyra.dev/images/garua-cli-ui.jpg" alt="Interfaz interactiva de Garúa en la terminal" width="820">
 </p>
 
-También puedes ejecutar acciones directas con parámetros.
-
-Buscar estaciones desde la línea de comandos:
+Busca estaciones desde la línea de comandos:
 
 ```bash
 garua --search Cabana
 ```
 
-Descargar un mes específico:
+Descarga un mes específico:
 
 ```bash
 garua --station 108047 --mode month --year 2025 --month 7
 ```
 
-Ejecutar el servidor MCP:
+Ejecuta el servidor MCP:
 
 ```bash
 garua-mcp
 ```
-> Importante: las descargas abren un navegador local para scrapear el sitio de SENAMHI y superar la verificación Cloudflare Turnstile cuando aparece.
 
-## Preview MCP
+> Nota: cuando pidas descargar datos, Garúa abrirá un navegador local para consultar el sitio de SENAMHI y superar la verificación Cloudflare Turnstile cuando aparezca. Esto es esperado en la herramienta de descarga.
 
-Garua también funciona como servidor MCP: puedes pedir tareas en lenguaje natural y el cliente usa las tools de Garua para buscar estaciones, descargar datos o analizar CSV.
+## Vista MCP
 
-### Preview en Codex (ChatGPT)
+Garúa también funciona como servidor MCP. Puedes pedir tareas en lenguaje natural y el cliente usa las herramientas de Garúa para buscar estaciones, descargar datos o analizar CSV.
 
-<p align="center">
-  <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-codex.gif" alt="Preview de Garua MCP en Codex" width="820">
-</p>
-
-### Preview en Claude Desktop
+### Codex
 
 <p align="center">
-  <img src="https://github.com/danyneyra/senamhi-scraper/raw/dev/docs/img/garua-claude.gif" alt="Preview de Garua MCP en Claude Desktop" width="820">
+  <img src="https://garua.danyneyra.dev/images/garua-codex.gif" alt="Vista de Garúa MCP en Codex" width="820">
 </p>
 
-Ver configuración completa en [docs/installation.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/installation.md) y ejemplos en [docs/usage/mcp.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/mcp.md).
+### Claude Desktop
+
+<p align="center">
+  <img src="https://garua.danyneyra.dev/images/garua-claude.gif" alt="Vista de Garúa MCP en Claude Desktop" width="820">
+</p>
+
+Ver configuración completa en [Configurar MCP](https://garua.danyneyra.dev/installation/#configurar-mcp) y más ejemplos en [Uso MCP](https://garua.danyneyra.dev/usage/mcp/).
 
 Ejemplos en un cliente MCP:
 
 ```text
-Busca estaciones meteorologicas en Arequipa sobre 3000 msnm
-Descarga datos de febrero 2025 de la estacion Cabana
-Resume diciembre 2025 para la estacion 107008
+Busca estaciones meteorológicas en Arequipa sobre 3000 msnm
+Recomienda una estación para lat -7.61, lon -77.82 con altitud 3000 msnm
+Descarga datos de febrero 2025 de la estación Cabana
+Resume diciembre 2025 para la estación 107008
 Compara marzo 2025 vs marzo 2026 para Cabana
-Recomienda una estacion para lat -7.61, lon -77.82 con altitud 3000 msnm
 ```
 
 ## Documentación
 
-- [Inicio de documentación](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/index.md)
-- [Primeros pasos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/quickstart.md)
-- [Instalación](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/installation.md)
-- [Uso CLI](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/cli.md)
-- [Uso MCP](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/mcp.md)
-- [Ejemplos completos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/usage/examples.md)
-- [Referencia de tools MCP](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/reference/tools.md)
+- [Primeros pasos](https://garua.danyneyra.dev/quickstart/)
+- [Instalación](https://garua.danyneyra.dev/installation/)
+- [Uso CLI](https://garua.danyneyra.dev/usage/cli/)
+- [Uso MCP](https://garua.danyneyra.dev/usage/mcp/)
+- [Ejemplos completos](https://garua.danyneyra.dev/usage/examples/)
+- [Referencia de herramientas MCP](https://garua.danyneyra.dev/reference/tools/)
+- [Variables de entorno](https://garua.danyneyra.dev/reference/environment/)
+- [Changelog](https://garua.danyneyra.dev/changelog/)
 
 ## Guías principales
 
-- [Buscar estaciones](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/buscar-estaciones.md)
-- [Descargar datos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/descargar-datos.md)
-- [Explorar CSV](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/explorar-csv.md)
-- [Resumir un período](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/resumir-periodo.md)
-- [Comparar periodos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/comparar-periodos.md)
-- [Validar calidad de datos](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/validar-datos.md)
-- [Recomendar estaciones](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/guides/recomendar-estacion.md)
-
-## Estado del proyecto
-
-Garua esta en fase final antes de una publicacion estable. El paquete ya esta preparado para uso como CLI y servidor MCP, pero las interfaces pueden recibir ajustes menores mientras se ordena la documentacion y se endurecen los flujos principales.
+- [Buscar estaciones](https://garua.danyneyra.dev/guides/buscar-estaciones/)
+- [Descargar datos](https://garua.danyneyra.dev/guides/descargar-datos/)
+- [Explorar CSV](https://garua.danyneyra.dev/guides/explorar-csv/)
+- [Resumir un periodo](https://garua.danyneyra.dev/guides/resumir-periodo/)
+- [Comparar periodos](https://garua.danyneyra.dev/guides/comparar-periodos/)
+- [Validar calidad de datos](https://garua.danyneyra.dev/guides/validar-datos/)
+- [Recomendar estaciones](https://garua.danyneyra.dev/guides/recomendar-estacion/)
 
 ## Desarrollo
 
 ```bash
-git clone https://github.com/danyneyra/senamhi-scraper.git
-cd senamhi-scraper
+git clone https://github.com/danyneyra/garua.git
+cd garua
 python -m venv .venv
 .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
-Mas detalles en [docs/development/architecture.md](https://github.com/danyneyra/senamhi-scraper/blob/dev/docs/development/architecture.md).
+En Linux o macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Más detalles en [Arquitectura](https://garua.danyneyra.dev/development/architecture/) y [Contribuir](https://garua.danyneyra.dev/development/contributing/).
 
 ## Licencia
 
-MIT. Ver [LICENSE](https://github.com/danyneyra/senamhi-scraper/blob/dev/LICENSE).
+Este proyecto se publica bajo los términos de la licencia MIT. Ver [LICENSE](https://github.com/danyneyra/garua/blob/main/LICENSE).
+
+[Model Context Protocol]: https://modelcontextprotocol.io/docs/getting-started/intro
+[SENAMHI]: https://www.senamhi.gob.pe/?p=estaciones

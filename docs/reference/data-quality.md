@@ -1,3 +1,13 @@
+---
+icon: lucide/shield-check
+tags:
+  - Calidad
+  - Datos
+  - S/D
+  - Trazas
+
+---
+
 # Calidad de datos
 
 Garua trata los datos SENAMHI con reglas explicitas para evitar conclusiones incorrectas.

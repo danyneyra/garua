@@ -1,3 +1,10 @@
+---
+icon: lucide/list-checks
+tags:
+  - Ejemplos
+---
+
+
 # Ejemplos completos
 
 ## Encontrar una estación y descargar un mes
@@ -35,12 +42,13 @@ Flujo esperado:
 MCP:
 
 ```text
-Recomienda estaciones meteorologicas para un proyecto en lat -7.6133, lon -77.8204, con altitud objetivo de 3000 msnm y al menos 5 anos de historial.
+Recomienda estaciones meteorologicas para un proyecto en lat -7.6133, lon -77.8204, 
+con altitud objetivo de 3000 msnm y al menos 5 anos de historial.
 ```
 
 Resultado esperado:
 
-- estación recomendada.
+- Estación recomendada.
 - Alternativas ordenadas.
 - Score explicable por distancia, historial, estado operativo y altitud.
 
@@ -49,7 +57,8 @@ Resultado esperado:
 MCP:
 
 ```text
-Valida los datos de julio 2025 para la estación 108047 y dime si hay duplicados, S/D, trazas o fechas faltantes.
+Valida los datos de julio 2025 para la estación 108047 y dime si hay duplicados, S/D, 
+trazas o fechas faltantes.
 ```
 
 Usa este flujo antes de reportes técnicos o análisis sensibles.

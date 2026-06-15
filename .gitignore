@@ -7,6 +7,7 @@ __pycache__/
 venv/
 dist/
 build/
+site/
 output/
 *.egg-info/
 .eggs/

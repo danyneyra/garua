@@ -9,6 +9,10 @@ class ScrapingError(GaruaError):
     """Error base durante la navegación, captura o procesamiento de datos SENAMHI."""
 
 
+class BrowserNotFoundError(ScrapingError):
+    """No se encontró un navegador Chromium compatible para ejecutar zendriver."""
+
+
 class ScrapingPageError(ScrapingError):
     """Error al preparar o navegar la página de SENAMHI."""
 
@@ -36,6 +40,7 @@ class OptionProcessingError(ScrapingError):
 __all__ = [
     "GaruaError",
     "ScrapingError",
+    "BrowserNotFoundError",
     "ScrapingPageError",
     "SelectNotFoundError",
     "IframeNotFoundError",

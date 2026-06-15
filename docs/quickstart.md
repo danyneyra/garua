@@ -1,12 +1,31 @@
+---
+icon: lucide/package-open
+tags:
+  - Primeros pasos
+
+---
+
 # Primeros pasos
 
-Esta guía muestra el camino más corto para instalar Garua, buscar una estación y descargar datos.
+Esta guía muestra el camino más corto para instalar Garúa, buscar una estación y descargar datos.
 
-## 1. Instala Garua
+## 1. Instala Garúa
 
-```bash
-pip install garua
+<div class="garua-terminal" data-garua-terminal markdown="1" aria-label="Instalación rápida de Garúa en terminal">
+
+```console
+$ pip install garua
+████████████████████████████████ 100%
+
+$ garua --doctor
+OK Python 3.11+
+OK Navegador compatible encontrado
+
+$ garua --search Cabana
+Cabana | código 108047 | Meteorológica | Áncash
 ```
+
+</div>
 
 ## 2. Busca una estación
 
@@ -30,9 +49,9 @@ Anota el código interno de la estación que quieras usar. Si hay varias coincid
 garua --station 108047 --mode month --year 2025 --month 7
 ```
 
-Garua generara archivos CSV en la carpeta de salida configurada por el proyecto.
+Garúa generara archivos CSV en la carpeta de salida configurada por el proyecto.
 
-## 4. Usa Garua con MCP
+## 4. Usa Garúa con MCP
 
 Ejecuta:
 
@@ -48,8 +67,26 @@ Descarga julio 2025 de la estacion 108047
 Resume los datos descargados de julio 2025 para esa estacion
 ```
 
-## Siguiente paso
+## Siguientes pasos
 
-- Para instalacion detallada: [installation.md](installation.md)
-- Para comandos CLI: [usage/cli.md](usage/cli.md)
-- Para uso con IA via MCP: [usage/mcp.md](usage/mcp.md)
+<div class="grid cards" markdown>
+
+-   :lucide-rocket: **Instalación detallada**
+
+    Revisa información detalla de como instalar y configurar Garúa en tu sistema y en tu MCP cliente.
+
+    [Ir a Instalación](installation.md){data-preview}
+
+-   :lucide-square-terminal: **Uso CLI**
+
+    Revisa el uso de Garúa vía CLI: App interactiva y comandos.
+
+    [Ver Uso de CLI](usage/cli.md){data-preview}
+
+-   :lucide-server: **Uso MCP**
+
+    Revisa el uso de Garúa vía MCP Server, puedes usarlo en tu cliente de IA favorito.
+
+    [Ver Uso en MCP](usage/mcp.md){data-preview}
+
+</div>

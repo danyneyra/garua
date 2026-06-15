@@ -1,3 +1,9 @@
+---
+icon: lucide/text-search
+tags:
+  - Resumir
+---
+
 # Resumir un período
 
 ## Qué resuelve

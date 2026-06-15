@@ -1,3 +1,11 @@
+---
+icon: lucide/sheet
+tags:
+  - Archivos
+  - CSV
+---
+
+
 # Explorar CSV
 
 ## Qué resuelve

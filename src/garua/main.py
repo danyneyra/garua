@@ -1,6 +1,11 @@
 import asyncio
 import argparse
 import sys
+from garua.exceptions import (
+    BrowserNotFoundError,
+    SelectNotFoundError,
+    TableNotFoundError,
+)
 from garua.settings import (
     ERROR,
     PROJECT_NAME,
@@ -13,17 +18,17 @@ from garua.settings import (
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="main.py",
+        prog="garua",
         description="Garua — Descarga datos de estaciones meteorológicas.",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog=(
             "Ejemplos:\n"
-            "  python main.py --search SIHUAS\n"
-            "  python main.py --search 108047\n"
-            "  python main.py -s 108047 -m month -y 2024 --month 9\n"
-            "  python main.py -s 108047 -m year  -y 2024\n"
-            "  python main.py -s 108047 -m year  -y 2024 --individual\n"
-            "  python main.py -s 108047 -m period --start 2020 --end 2025\n"
+            "  garua --search SIHUAS\n"
+            "  garua --search 108047\n"
+            "  garua -s 108047 -m month -y 2024 --month 9\n"
+            "  garua -s 108047 -m year  -y 2024\n"
+            "  garua -s 108047 -m year  -y 2024 --individual\n"
+            "  garua -s 108047 -m period --start 2020 --end 2025\n"
         ),
     )
 
@@ -32,6 +37,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="version",
         version=f"{PROJECT_NAME} {VERSION}",
         help="Muestra la versión instalada y sale.",
+    )
+    parser.add_argument(
+        "--doctor",
+        "--health",
+        action="store_true",
+        help="Revisa requisitos básicos: Python, sistema, carpetas y navegador.",
     )
 
     # Búsqueda standalone
@@ -103,8 +114,8 @@ def validate_cli_args(args: argparse.Namespace) -> None:
     Valida combinaciones de argumentos CLI y lanza SystemExit con mensaje claro
     si hay errores de uso antes de arrancar el navegador.
     """
-    if args.search:
-        return  # --search es standalone, no necesita nada más
+    if args.search or args.doctor:
+        return  # --search y --doctor son standalone, no necesitan nada más
 
     mode = args.mode
 
@@ -147,6 +158,77 @@ def validate_cli_args(args: argparse.Namespace) -> None:
             sys.exit(
                 f"{ERROR} --start ({args.start}) no puede ser mayor que --end ({args.end})."
             )
+
+
+def run_doctor() -> int:
+    from rich.console import Console
+    from rich import box
+    from rich.panel import Panel
+    from rich.table import Table
+
+    from garua.scraping.browser import ENV_BROWSER_PATH, get_runtime_summary
+    from garua.settings import CSV_DIR, EXPORTS_DIR, LOGS_DIR, OUTPUT_DIR
+
+    console = Console()
+    console.print(
+        Panel(
+            f"{PROJECT_NAME} v{VERSION}\nDiagnóstico de requisitos básicos",
+            title="Garua Doctor",
+            title_align="left",
+        )
+    )
+    summary = get_runtime_summary()
+
+    dirs_ok = True
+    dirs_message = "Directorios listos"
+    try:
+        ensure_output_dirs()
+    except Exception as exc:
+        dirs_ok = False
+        dirs_message = str(exc)
+
+    table = Table(
+        title="Diagnóstico Garua",
+        show_header=True,
+        header_style="bold",
+        box=box.ROUNDED,
+        expand=True,
+    )
+    table.add_column("Check", no_wrap=True)
+    table.add_column("Estado", no_wrap=True)
+    table.add_column("Detalle")
+
+    table.add_row("Python", "OK", str(summary["python"]))
+    table.add_row("Sistema", "OK", str(summary["platform"]))
+    table.add_row(
+        "Carpetas",
+        "OK" if dirs_ok else "ERROR",
+        (
+            f"{dirs_message}\n"
+            f"OUTPUT_DIR={OUTPUT_DIR}\n"
+            f"CSV_DIR={CSV_DIR}\n"
+            f"LOGS_DIR={LOGS_DIR}\n"
+            f"EXPORTS_DIR={EXPORTS_DIR}"
+        ),
+    )
+    table.add_row(
+        "Navegador",
+        "OK" if summary["browser_ok"] else "ERROR",
+        (
+            f"{summary['browser_message']}\n"
+            f"Origen: {summary['browser_source'] or 'N/A'}\n"
+            f"Ruta: {summary['browser_path'] or 'N/A'}"
+        ),
+    )
+
+    console.print(table)
+
+    if not summary["browser_ok"]:
+        console.print(
+            f"Configura {ENV_BROWSER_PATH} o instala Google Chrome, Brave o Microsoft Edge."
+        )
+
+    return 0 if dirs_ok and summary["browser_ok"] else 1
 
 
 async def main(args: argparse.Namespace | None = None):
@@ -217,6 +299,20 @@ async def main(args: argparse.Namespace | None = None):
         result = await scraping_main(query_station, query_params)
         return result
 
+    except ValueError as ve:
+        ui.error(f"Error de validación: {ve}")
+        return {
+            "success": False,
+            "error": f"Error de validación: {ve}",
+            "saved_files": [],
+        }
+    except (BrowserNotFoundError, SelectNotFoundError, TableNotFoundError) as e:
+        ui.error(str(e))
+        return {
+            "success": False,
+            "error": str(e),
+            "saved_files": [],
+        }
     except Exception as e:
         ui.error(f"Error durante el proceso: {e}")
         import traceback
@@ -238,6 +334,9 @@ def cli() -> int:
     args = parser.parse_args()
 
     # --search es standalone: lista resultados y sale
+    if args.doctor:
+        return run_doctor()
+
     if args.search:
         from garua.services.station import search_and_print_stations
         from garua.utils.ui_console import ui

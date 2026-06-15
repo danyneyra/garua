@@ -1,3 +1,11 @@
+---
+icon: lucide/download
+tags:
+  - Descargar
+  - CSV
+  - Datos
+---
+
 # Descargar datos
 
 ## Qué resuelve

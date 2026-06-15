@@ -64,6 +64,10 @@ CSV_DIR = OUTPUT_DIR / "csv"
 LOGS_DIR = OUTPUT_DIR / "logs"
 EXPORTS_DIR = OUTPUT_DIR / "exports"
 
+# Navegador Chromium compatible para zendriver.
+# Si se omite, Garua intenta detectar Chrome/Brave con zendriver y Edge como fallback.
+BROWSER_EXECUTABLE_PATH = os.getenv("GARUA_BROWSER_PATH")
+
 # Configuración CSV
 CSV_SEPARATOR = ";"
 CSV_ENCODING = "utf-8"

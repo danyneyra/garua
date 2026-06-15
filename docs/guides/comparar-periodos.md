@@ -1,3 +1,9 @@
+---
+icon: lucide/files
+tags:
+  - Comparar estaciones
+---
+
 # Comparar periodos
 
 ## Qué resuelve

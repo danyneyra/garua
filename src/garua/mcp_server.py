@@ -10,7 +10,7 @@ Configuración en VS Code (.vscode/mcp.json):
         "garua": {
           "type": "stdio",
           "command": "<ruta-absoluta>/.venv/Scripts/python.exe",
-          "args": ["-m", "garua.mcp_server"]
+          "args": ["-m", "garua_mcp"]
         }
       }
     }

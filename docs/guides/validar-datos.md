@@ -1,3 +1,13 @@
+---
+icon: lucide/file-check-corner
+tags:
+  - Validar
+  - Data
+  - Datos
+  - Calidad
+---
+
+
 # Validar calidad de datos
 
 ## Qué resuelve

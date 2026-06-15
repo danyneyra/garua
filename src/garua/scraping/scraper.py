@@ -16,7 +16,12 @@ from garua.settings import (
 )
 from garua.models.station import Station
 from garua.models.scraping import ScrapingQueryParams
-from garua.exceptions import TableNotFoundError, SelectNotFoundError
+from garua.exceptions import (
+    BrowserNotFoundError,
+    SelectNotFoundError,
+    TableNotFoundError,
+)
+from garua.scraping.browser import check_browser, get_browser_config
 from garua.utils.ui_console import ui
 from garua.services.station import (
     build_scraping_url_for_station,
@@ -159,13 +164,20 @@ async def process_option(
 
 
 async def scraping_main(query_station: Station, query_params: ScrapingQueryParams):
+    browser = None
     try:
+        # Validar navegador
+        browser_check = check_browser()
+        if not browser_check.ok:
+            raise BrowserNotFoundError(browser_check.message)
+        browser_config = get_browser_config()
+
         # Obtener headers para el csv de acuerdo al tipo y categoría de estación
         headers = get_headers_for_station(query_station)
 
         # Construir URL de la estación y preparar navegador + página
         url_station = build_scraping_url_for_station(query_station)
-        browser = await zd.start()
+        browser = await zd.start(config=browser_config)
         page, response_queue = await setup_page(browser, url_station)
 
         # Seleccionar el periodo a consultar y obtener el HTML del select para parsear opciones
@@ -272,6 +284,14 @@ async def scraping_main(query_station: Station, query_params: ScrapingQueryParam
             "successful_count": successful_count,
             "total_options": len(filtered_options),
         }
+
+    except (BrowserNotFoundError, SelectNotFoundError, TableNotFoundError) as e:
+        ui.error(str(e))
+        return {
+            "success": False,
+            "error": str(e),
+            "saved_files": [],
+        }
     except Exception as e:
         ui.error(f"Error durante el proceso: {e}")
         import traceback
@@ -284,4 +304,5 @@ async def scraping_main(query_station: Station, query_params: ScrapingQueryParam
         }
     finally:
         await asyncio.sleep(1)
-        await browser.stop()
+        if browser is not None:
+            await browser.stop()
