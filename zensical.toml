@@ -1,7 +1,7 @@
 [project]
-site_name = "Garua"
+site_name = "Garúa"
 site_url = "https://garua.danyneyra.dev"
-site_description = "Documentacion de Garua: CLI y servidor MCP para trabajar con datos hidrometeorologicos oficiales del SENAMHI Peru."
+site_description = "Documentación de Garua: CLI y servidor MCP para trabajar con datos hidrometeorológicos oficiales del SENAMHI Perú."
 site_author = "Dany Daniel"
 copyright = "Dany Daniel :)"
 docs_dir = "docs"

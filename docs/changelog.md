@@ -14,7 +14,7 @@ detallado del proyecto también se mantiene en el archivo
 [`CHANGELOG.md`](https://github.com/danyneyra/garua/blob/main/CHANGELOG.md) y en
 las publicaciones de GitHub.
 
-## v0.30.0 - 2026-06-30
+## v0.30.0 - 2026-06-15
 
 ### Nueva etapa como Garúa
 
