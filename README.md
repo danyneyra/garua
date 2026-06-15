@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://garua.danyneyra.dev/">
-    <img alt="Logo de Garúa" src="https://garua.danyneyra.dev/images/garua-logo.svg">
+    <img alt="Logo de Garúa" src="https://github.com/danyneyra/garua/blob/main/docs/images/logo.svg">
   </a>
 
   <p><strong>Garúa</strong> descarga, explora y analiza datos hidrometeorológicos oficiales del SENAMHI Perú.</p>
@@ -77,7 +77,7 @@ garua
 ```
 
 <p align="center">
-  <img src="https://garua.danyneyra.dev/images/garua-cli-ui.jpg" alt="Interfaz interactiva de Garúa en la terminal" width="820">
+  <img src="https://github.com/danyneyra/garua/blob/main/docs/images/garua-cli-ui.jpg" alt="Interfaz interactiva de Garúa en la terminal" width="820">
 </p>
 
 Busca estaciones desde la línea de comandos:
@@ -107,13 +107,13 @@ Garúa también funciona como servidor MCP. Puedes pedir tareas en lenguaje natu
 ### Codex
 
 <p align="center">
-  <img src="https://garua.danyneyra.dev/images/garua-codex.gif" alt="Vista de Garúa MCP en Codex" width="820">
+  <img src="https://github.com/danyneyra/garua/blob/main/docs/images/garua-codex.gif" alt="Vista de Garúa MCP en Codex" width="820">
 </p>
 
 ### Claude Desktop
 
 <p align="center">
-  <img src="https://garua.danyneyra.dev/images/garua-claude.gif" alt="Vista de Garúa MCP en Claude Desktop" width="820">
+  <img src="https://github.com/danyneyra/garua/blob/main/docs/images/garua-claude.gif" alt="Vista de Garúa MCP en Claude Desktop" width="820">
 </p>
 
 Ver configuración completa en [Configurar MCP](https://garua.danyneyra.dev/installation/#configurar-mcp) y más ejemplos en [Uso MCP](https://garua.danyneyra.dev/usage/mcp/).
