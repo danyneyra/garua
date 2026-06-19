@@ -23,7 +23,7 @@ emoji==2.15.0
 exceptiongroup==1.3.1
 fastmcp==3.4.2
 fastmcp-slim==3.4.2
--e git+https://github.com/danyneyra/senamhi-scraper.git@eff1d240c3967848c5eb0cfff10a180315c2be08#egg=garua
+-e git+https://github.com/danyneyra/garua.git@eff1d240c3967848c5eb0cfff10a180315c2be08#egg=garua
 grapheme==0.6.0
 griffelib==2.0.2
 h11==0.16.0

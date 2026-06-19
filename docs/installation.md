@@ -253,6 +253,8 @@ garua-mcp
 
     1.  Aquí debe ir la ruta de Python instalado en tu sistema o de tu entorno virtual.
 
+    Puedes descargarlo desde la web oficial de [Codex](https://openai.com/es-419/codex/)
+
     Recomendaciones:
 
     - Reinicia Codex después de editar el archivo (cierra desde la barra de tareas y vuelve a abrirlo).
@@ -298,6 +300,9 @@ garua-mcp
 
     1.  Aquí debe ir la ruta de Python instalado en tu sistema o de tu entorno virtual.
 
+    Puedes descargarlo desde la web oficial de [Claude Desktop](https://claude.com/download).
+
+    
     Recomendaciones:
 
     - Reinicia Claude Desktop después de editar el archivo.

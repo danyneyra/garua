@@ -12,7 +12,7 @@ tags:
 
 # Uso MCP Server
 
-El servidor MCP permite usar Garúa desde clientes compatibles con [Model Context Protocol]. Es ideal cuando quieres pedir tareas en lenguaje natural y dejar que el cliente de IA llame las tools correctas.
+El servidor MCP permite usar Garúa desde clientes compatibles con [Model Context Protocol]. Es ideal cuando quieres pedir tareas en lenguaje natural y dejar que el cliente de IA llame las tools correctas. Si quieres una explicación visual del flujo, revisa [Qué es MCP en Garúa](mcp-concept.md){data-preview}.
 
 [Model Context Protocol]: https://modelcontextprotocol.io/docs/getting-started/intro
 
@@ -44,12 +44,12 @@ Si el cliente no encuentra el comando, usa la ruta absoluta al ejecutable o al P
 ## Prompts útiles
 
 ```text
-- Busca estaciones meteorologicas en Arequipa sobre 3000 msnm
+- Busca estaciones meteorológicas en Arequipa sobre 3000 msnm
 - Qué estaciones hay cerca de lat -7.61, lon -77.82?
-- Descarga datos de julio 2025 de la estacion Cabana
-- Resume julio 2025 para la estacion 108047
+- Descarga datos de julio 2025 de la estación Cabana
+- Resume julio 2025 para la estación 108047
 - Compara marzo 2025 vs marzo 2026 para Cabana
-- Valida la calidad de datos de julio 2025 para la estacion 108047
+- Valida la calidad de datos de julio 2025 para la estación 108047
 ```
 
 ## Flujo
@@ -72,4 +72,5 @@ graph LR
 
 ## Referencia técnica
 
-La lista completa de tools esta en [Referencia de tools MCP](../reference/tools.md){data-preview}. Esa referencia se genera desde los docstrings del código para mantenerla sincronizada con el servidor.
+La lista completa de tools está en [Referencia de tools MCP](../reference/tools.md){data-preview}. Esa referencia se genera desde los docstrings del código para mantenerla sincronizada con el servidor.
+
