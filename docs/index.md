@@ -1,6 +1,6 @@
 ---
 icon: lucide/droplet
-title: "Garúa"
+title: "Documentación"
 ---
 <style>
 .md-content .md-typeset h1 { display: none; }
@@ -29,6 +29,12 @@ title: "Garúa"
 ---
 
 Garúa es una herramienta de código abierto para trabajar con estaciones meteorológicas e hidrológicas del [SENAMHI]. Permite buscar estaciones, descargar datos históricos en CSV, revisar archivos locales, resumir periodos, comparar meses o años, validar calidad de datos y recomendar estaciones cercanas a un punto geográfico.
+
+## Video de introducción
+
+<div class="garua-video" markdown="1">
+  <iframe src="https://www.youtube.com/embed/q5I_q8GrOZ0" title="Garúa: CLI y servidor MCP para datos del SENAMHI" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
 
 ## Qué puedes hacer
 
@@ -173,12 +179,12 @@ Puedes ver la configuración completa en [Configurar MCP](installation.md#config
 
 
 === ":fontawesome-brands-openai: Codex"
-    ![Vista de Garúa MCP en Codex](images/garua-codex.gif){loading=lazy}
+    ![Vista de Garúa MCP en Codex](images/garua-codex.gif)
 
     Puedes descargarlo desde la web oficial de [Codex](https://openai.com/es-419/codex/).
 
 === ":fontawesome-brands-claude: Claude Desktop"
-    ![Vista de Garúa MCP en Claude Desktop](images/garua-claude.gif){loading=lazy}
+    ![Vista de Garúa MCP en Claude Desktop](images/garua-claude.gif)
 
     Puedes descargarlo desde la web oficial de [Claude Desktop](https://claude.com/download).
 
@@ -223,3 +229,4 @@ Compara marzo 2025 vs marzo 2026 para Cabana
 ## Licencia
 
 Este proyecto se publica bajo los términos de la licencia MIT.
+

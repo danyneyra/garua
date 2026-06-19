@@ -22,6 +22,14 @@
 
 Garúa es una herramienta de código abierto para trabajar con estaciones meteorológicas e hidrológicas del [SENAMHI]. Permite buscar estaciones, descargar datos históricos en CSV, revisar archivos locales, resumir periodos, comparar meses o años, validar calidad de datos y recomendar estaciones cercanas a un punto geográfico.
 
+## Video de introducción
+
+<a href="https://www.youtube.com/watch?v=q5I_q8GrOZ0">
+  <img src="https://github.com/danyneyra/garua/raw/main/docs/images/youtube-video.jpg" alt="Video de introducción a Garúa en YouTube" width="820">
+</a>
+
+Ver en YouTube: [Garúa: CLI y servidor MCP para datos del SENAMHI](https://www.youtube.com/watch?v=q5I_q8GrOZ0)
+
 ## Qué puedes hacer
 
 | Tarea | Descripción |
@@ -173,3 +181,4 @@ Este proyecto se publica bajo los términos de la licencia MIT. Ver [LICENSE](ht
 
 [Model Context Protocol]: https://modelcontextprotocol.io/docs/getting-started/intro
 [SENAMHI]: https://www.senamhi.gob.pe/?p=estaciones
+

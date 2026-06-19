@@ -1,7 +1,7 @@
 [project]
 site_name = "Garúa"
 site_url = "https://garua.danyneyra.dev"
-site_description = "Documentación de Garua: CLI y servidor MCP para trabajar con datos hidrometeorológicos oficiales del SENAMHI Perú."
+site_description = "Documentación de Garúa: CLI y servidor MCP para trabajar con datos hidrometeorológicos oficiales del SENAMHI Perú."
 site_author = "Dany Daniel"
 copyright = "Dany Daniel :)"
 docs_dir = "docs"
@@ -21,6 +21,7 @@ nav = [
   ]},
   {"Uso" = [
     "usage/cli.md",
+    "usage/mcp-concept.md",
     "usage/mcp.md",
     "usage/examples.md",
   ]},
@@ -47,6 +48,7 @@ nav = [
   ]},
 ]
 
+
 [project.theme]
 language = "es"
 font.text="DM Sans"
@@ -66,7 +68,8 @@ features = [
   "content.code.select",
   "content.code.annotate",
   "content.footnote.tooltips",
-  "content.tooltips"
+  "content.tooltips",
+  "content.tabs.link"
 ]
 
 # Palette toggle for light mode

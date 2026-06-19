@@ -235,3 +235,21 @@
     font-size: 0.76rem;
   }
 }
+.garua-video {
+  position: relative;
+  width: 100%;
+  margin: 1.2rem 0 1.8rem;
+  overflow: hidden;
+  border-radius: 0.4rem;
+  aspect-ratio: 16 / 9;
+  background: #14141f;
+}
+
+.garua-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
