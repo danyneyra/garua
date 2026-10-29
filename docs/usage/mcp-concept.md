@@ -5,6 +5,8 @@ tags:
   - IA
   - Tools
   - Garúa
+title: "Qué es MCP y cómo se utiliza en Garúa"
+description: "Entiende cómo conecta MCP un asistente de IA con Garúa y qué papel tienen las tools, los resources y los prompts para trabajar con datos del SENAMHI."
 ---
 
 # ¿Qué es MCP en Garúa?

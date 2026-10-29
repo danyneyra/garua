@@ -2,6 +2,8 @@
 icon: lucide/text-search
 tags:
   - Resumir
+title: "Resumir datos meteorológicos e hidrológicos por periodo"
+description: "Obtén resúmenes de precipitación, temperatura y otras variables del SENAMHI con Garúa. Consulta métricas y advertencias del periodo analizado."
 ---
 
 # Resumir un período

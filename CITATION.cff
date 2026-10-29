@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: >-
+  Si utilizas Garúa en una investigación o estudio, cita este software e indica
+  la versión utilizada. Cita también al SENAMHI como fuente de los datos
+  hidrometeorológicos empleados.
+type: software
+title: "Garúa: herramienta para consultar y analizar datos hidrometeorológicos del SENAMHI Perú"
+authors:
+  - family-names: Neyra
+    given-names: Dany Daniel
+version: "0.31.0"
+date-released: "2026-10-28"
+repository-code: "https://github.com/danyneyra/garua"
+url: "https://garua.danyneyra.dev"
+license: MIT
+abstract: >-
+  Herramienta de código abierto con interfaz de terminal y servidor MCP para
+  buscar estaciones meteorológicas e hidrológicas del SENAMHI Perú, descargar
+  datos históricos, explorar archivos CSV, resumir periodos, comparar series
+  y validar la calidad de los datos.
+keywords:
+  - meteorología
+  - hidrología
+  - SENAMHI
+  - Perú
+  - datos hidrometeorológicos
+  - CLI
+  - MCP

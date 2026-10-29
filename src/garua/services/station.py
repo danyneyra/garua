@@ -1,7 +1,6 @@
 import json
 from datetime import date
 from typing import List, Optional
-from urllib.parse import urlencode
 
 import requests
 
@@ -11,8 +10,9 @@ from garua.models.station import (
     StationDataAvailability,
     StationDataAvailabilityResponse,
 )
-from garua.schemas.station import station_response_serializer
+from garua.schemas.station import station_response_serializer, station_tracking_serializer
 from garua.utils.html_utils import extract_station_info
+from garua.utils.station_url import build_scraping_url_for_station
 
 
 def load_stations(path: str) -> list[Station]:
@@ -62,6 +62,7 @@ def station_data_availability(station: Station) -> StationDataAvailability:
         code=station.code,
         data_available_since=station.data_available_since,
         years_available=calculate_years_available(station.data_available_since),
+        **station_tracking_serializer(station),
     )
 
 
@@ -127,19 +128,6 @@ def check_data_availability(
             after_year=after_year,
         )
     )
-
-
-def build_scraping_url_for_station(station: Station) -> str:
-    """Construye la URL para acceder a los datos de una estación específica"""
-    url_base = settings.BASE_URL
-    params = {
-        "cod": station.code,
-        "estado": station.status,
-        "tipo_esta": station.station_type,
-        "cate": station.category,
-        "cod_old": station.legacy_code,
-    }
-    return f"{url_base}?{urlencode(params)}"
 
 
 def scraping_station_by_code(code: str) -> Optional[Station]:

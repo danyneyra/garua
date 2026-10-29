@@ -2,8 +2,8 @@
 site_name = "Garúa"
 site_url = "https://garua.danyneyra.dev"
 site_description = "Garúa es un CLI y servidor MCP para trabajar con datos hidrometeorológicos oficiales del SENAMHI Perú. Descarga, analiza y valida datos de SENAMHI con IA."
-site_author = "Dany Daniel"
-copyright = "Dany Daniel :)"
+site_author = "Dany Daniel Neyra"
+copyright = "Dany Daniel Neyra :)"
 docs_dir = "docs"
 site_dir = "site"
 repo_url = "https://github.com/danyneyra/garua"
@@ -15,46 +15,51 @@ extra_javascript = ["javascripts/terminal.js"]
 nav = [
   {"Garúa" = "index.md"},
   {"Primeros pasos" = [
-    "quickstart.md",
-    "installation.md",
-    "changelog.md",
+    {"Primeros pasos" = "quickstart.md"},
+    {"Instalación" = "installation.md"},
+    {"Cómo citar Garúa" = "citation.md"},
   ]},
   {"Uso" = [
-    "usage/cli.md",
-    "usage/mcp-concept.md",
-    "usage/mcp.md",
-    "usage/examples.md",
+    {"Uso CLI" = "usage/cli.md"},
+    {"¿Qué es MCP en Garúa?" = "usage/mcp-concept.md"},
+    {"Uso MCP Server" = "usage/mcp.md"},
+    {"Ejemplos completos" = "usage/examples.md"},
   ]},
   {"Guías" = [
-    "guides/buscar-estaciones.md",
-    "guides/descargar-datos.md",
-    "guides/explorar-csv.md",
-    "guides/resumir-periodo.md",
-    "guides/comparar-periodos.md",
-    "guides/validar-datos.md",
-    "guides/recomendar-estacion.md",
+    {"Buscar estaciones" = "guides/buscar-estaciones.md"},
+    {"Descargar datos" = "guides/descargar-datos.md"},
+    {"Explorar CSV" = "guides/explorar-csv.md"},
+    {"Resumir un período" = "guides/resumir-periodo.md"},
+    {"Comparar periodos" = "guides/comparar-periodos.md"},
+    {"Validar calidad de datos" = "guides/validar-datos.md"},
+    {"Recomendar estación" = "guides/recomendar-estacion.md"},
   ]},
   {"Referencia" = [
-    "reference/tools.md",
-    "reference/cli.md",
-    "reference/environment.md",
-    "reference/output-files.md",
-    "reference/data-quality.md",
+    {"Referencia de tools MCP" = "reference/tools.md"},
+    {"Referencia CLI" = "reference/cli.md"},
+    {"Variables de entorno" = "reference/environment.md"},
+    {"Archivos de salida" = "reference/output-files.md"},
+    {"Calidad de datos" = "reference/data-quality.md"},
   ]},
   {"Desarrollo" = [
-    "development/architecture.md",
-    "development/mcp-server.md",
-    "development/contributing.md",
+    {"Arquitectura" = "development/architecture.md"},
+    {"Servidor MCP" = "development/mcp-server.md"},
+    {"Compatibilidad con FastMCP 4" = "development/fastmcp-4.md"},
+    {"Contribuir" = "development/contributing.md"},
+    {"Publicar versiones" = "development/releases.md"},
   ]},
+  {"Novedades" = "changelog.md"},
 ]
 
 
 [project.theme]
+custom_dir = "overrides"
 language = "es"
 font.text="DM Sans"
 logo = "images/logo.svg"
 favicon = "images/logo.svg"
 features = [
+  "announce.dismiss",
   "navigation.instant",
   "navigation.instant.progress",
   "navigation.tracking",

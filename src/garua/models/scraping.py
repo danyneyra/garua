@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, Annotated
 
 from garua.models.responses import ErrorResponse, SuccessResponse, FileInfo
@@ -21,7 +21,7 @@ class ScrapingPeriod(BaseModel):
 
 class ScrapingQueryBaseParams(BaseModel):
     mode: Annotated[
-        str,
+        Optional[str],
         Field(
             None,
             description=(
@@ -92,7 +92,8 @@ class ScrapingQueryParams(ScrapingQueryBaseParams):
     ] = None
 
     # Validar que los parámetros requeridos estén presentes según el modo
-    def validate(self):
+    @model_validator(mode="after")
+    def validate_parameters(self) -> "ScrapingQueryParams":
         if self.mode == "month":
             if self.year is None or self.month is None:
                 raise ValueError("Para mode='month', se requieren year y month.")
@@ -106,6 +107,7 @@ class ScrapingQueryParams(ScrapingQueryBaseParams):
                 )
         else:
             raise ValueError("mode debe ser 'month', 'year' o 'period'.")
+        return self
 
 
 class ScrapingSuccessResponse(SuccessResponse):

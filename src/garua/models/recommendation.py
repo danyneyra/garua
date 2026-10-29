@@ -3,6 +3,7 @@
 from typing import Literal
 
 from pydantic import BaseModel, Field
+from garua.models.station import StationCatalogTracking
 
 
 class RecommendationCriteria(BaseModel):
@@ -37,7 +38,7 @@ class RecommendationCriteria(BaseModel):
     )
 
 
-class StationRecommendation(BaseModel):
+class StationRecommendation(StationCatalogTracking):
     """Recomendación de estación con score y explicación."""
 
     name: str

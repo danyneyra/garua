@@ -3,7 +3,8 @@ Modelos de datos para representar estaciones meteorológicas e hidrológicas del
 Estos modelos se utilizan para estructurar la información de las estaciones, incluyendo su ubicación, categoría, tipo, estado operativo y disponibilidad de datos. También se incluyen validaciones para asegurar la integridad de los datos y métodos auxiliares para facilitar el acceso a la información relevante."""
 
 from pydantic import BaseModel, Field, field_validator
-from typing import Annotated, Optional, List
+from typing import Annotated, Optional, List, Literal
+from datetime import date
 from enum import Enum
 
 
@@ -39,7 +40,28 @@ class StationStatus(str, Enum):
     AUTOMATIC = "AUTOMATICA"  # Automática
 
 
-class Station(BaseModel):
+class StationCatalogTracking(BaseModel):
+    """Evidence from a catalog snapshot and a separate availability query."""
+
+    catalog_status: Literal["listed", "absent", "unknown"] = Field(
+        "unknown", description="Presencia en el listado consultado; absent no confirma una baja oficial"
+    )
+    availability_status: Literal[
+        "periods_announced", "no_periods_announced", "periods_unknown"
+    ] = Field(
+        "periods_unknown",
+        description="Estado del listado de meses anunciados en la ficha; periods_unknown significa listado desconocido. No evalúa autenticidad, exactitud ni calidad de los datos descargados de SENAMHI",
+    )
+    catalog_checked_at: Optional[date] = Field(
+        None, description="Fecha del listado usado para comparar"
+    )
+    availability_checked_at: Optional[date] = Field(
+        None, description="Fecha local de consulta de disponibilidad, incluso si falló"
+    )
+    note: Optional[str] = Field(None, description="Contexto de revisión del catálogo")
+
+
+class Station(StationCatalogTracking):
     """
     Modelo que representa una estación meteorológica o hidrológica del SENAMHI.
 
@@ -158,7 +180,7 @@ class StationSummary(BaseModel):
     status: StationStatus = Field(..., description="Estado operativo")
 
 
-class StationDataAvailability(BaseModel):
+class StationDataAvailability(StationCatalogTracking):
     """Modelo para representar la disponibilidad de datos de una estación."""
 
     name: str = Field(..., description="Nombre de la estación")

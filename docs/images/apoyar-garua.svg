@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="48" viewBox="0 0 360 48" role="img" aria-labelledby="title">
+  <title id="title">Regálame un jugo o una gelatina</title>
+  <rect width="360" height="48" rx="10" fill="#6d28ff"/>
+  <g fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 17h18l-2 19H21z"/>
+    <path d="m28 25 3-15h7M20 23h16"/>
+  </g>
+  <text x="51" y="29" fill="#fff" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="16" font-weight="600">Regálame un jugo o una gelatina</text>
+</svg>

@@ -294,8 +294,6 @@ async def main(args: argparse.Namespace | None = None):
             end_year=cli_dict.get("end_year"),
             individual=cli_dict.get("individual", False),
         )
-        query_params.validate()
-
         result = await scraping_main(query_station, query_params)
         return result
 

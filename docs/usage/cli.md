@@ -4,6 +4,8 @@ tags:
   - Uso
   - CLI
   - Comandos
+title: "Usar Garúa desde la terminal: CLI y descargas"
+description: "Aprende a usar el menú interactivo y los comandos de Garúa para buscar estaciones del SENAMHI y descargar datos históricos desde la terminal."
 ---
 
 # Uso CLI

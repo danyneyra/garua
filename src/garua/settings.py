@@ -40,7 +40,7 @@ def _env_path(name: str, default: Path) -> Path:
 
 # Metadata del proyecto
 PROJECT_NAME = "Garua"
-VERSION = "0.30.0"
+VERSION = "0.31.0"
 
 
 # Recursos internos del paquete
@@ -71,6 +71,10 @@ BROWSER_EXECUTABLE_PATH = os.getenv("GARUA_BROWSER_PATH")
 # Configuración CSV
 CSV_SEPARATOR = ";"
 CSV_ENCODING = "utf-8"
+
+# Maximum CSV bytes embedded per file and per tool result; 0 disables embedding.
+MCP_INLINE_FILE_MAX_BYTES = max(0, _env_int("GARUA_MCP_INLINE_FILE_MAX_BYTES", 32768))
+MCP_INLINE_TOTAL_MAX_BYTES = max(0, _env_int("GARUA_MCP_INLINE_TOTAL_MAX_BYTES", 65536))
 
 
 # Límites y tiempos de scraping

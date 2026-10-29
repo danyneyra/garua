@@ -1,5 +1,8 @@
 """Tools para búsqueda y filtrado de estaciones SENAMHI."""
 
+from fastmcp.tools import ToolResult
+from garua.schemas.result import build_tool_result
+
 import csv
 from datetime import datetime
 from typing import Annotated
@@ -21,7 +24,6 @@ from garua.schemas.mcp import (
     build_mcp_success_response,
 )
 
-
 _STATIONS_CSV_HEADERS = {
     "name": "Nombre",
     "code": "Código",
@@ -35,6 +37,11 @@ _STATIONS_CSV_HEADERS = {
     "district": "Distrito",
     "altitude": "Altitud",
     "data_available_since": "Datos disponibles desde",
+    "catalog_status": "Presencia en listado",
+    "availability_status": "Periodos anunciados",
+    "catalog_checked_at": "Fecha del listado",
+    "availability_checked_at": "Fecha de consulta de periodos",
+    "note": "Nota del catálogo",
 }
 
 
@@ -53,7 +60,7 @@ def register_station_tools(mcp):
                 )
             ),
         ],
-    ) -> dict:
+    ) -> ToolResult:
         """
         Busca estaciones SENAMHI por código o por nombre.
 
@@ -65,6 +72,10 @@ def register_station_tools(mcp):
         Devuelve una lista de estaciones candidatas con datos básicos para selección:
         nombre, código, tipo, categoría, estado operativo, coordenadas, ubicación
         administrativa, altitud y fecha inicial de disponibilidad de datos.
+
+        Revisa catalog_status, availability_status, sus fechas y note cuando estén
+        disponibles. absent no confirma una baja oficial; periods_announced no
+        confirma observaciones. Estos estados no bloquean una consulta explícita.
 
         Si devuelve varias estaciones, pide o infiere la estación correcta antes de
         descargar, resumir, comparar o validar datos. Si devuelve lista vacía, no
@@ -88,7 +99,7 @@ def register_station_tools(mcp):
                 )
             ),
         ],
-    ) -> dict:
+    ) -> ToolResult:
         """
         Obtiene la ficha completa de una estación SENAMHI por código.
 
@@ -99,6 +110,12 @@ def register_station_tools(mcp):
         Devuelve una sola estación con nombre, código, tipo, categoría, estado,
         coordenadas, departamento, provincia, distrito, altitud y disponibilidad
         histórica. Si el código no existe, devuelve una respuesta de error.
+
+        Incluye catalog_status, availability_status, sus fechas y note. Si figura
+        absent, informa que no aparece en el listado consultado en esa fecha;
+        conserva la posibilidad de consultar su histórico. periods_unknown indica
+        que se desconoce el listado de meses anunciados en la ficha. No evalúa la
+        autenticidad, exactitud ni calidad del contenido descargado de SENAMHI.
 
         Para búsquedas por nombre o cuando el código sea dudoso, usa primero
         search_stations.
@@ -133,7 +150,7 @@ def register_station_tools(mcp):
                 description="Cantidad de estaciones a omitir antes de devolver resultados.",
             ),
         ] = 0,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Devuelve una página del catálogo de estaciones SENAMHI disponibles.
 
@@ -173,7 +190,7 @@ def register_station_tools(mcp):
                 )
             ),
         ] = True,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Exporta el catálogo completo de estaciones SENAMHI a un archivo CSV.
 
@@ -220,9 +237,9 @@ def register_station_tools(mcp):
         content: list = [TextContent(text=message, type="text")]
         content.extend(resource_links)
 
-        return {
-            "content": content,
-            "structuredContent": {
+        return build_tool_result(
+            content=content,
+            structured_content={
                 "message": message,
                 "total_rows": len(stations),
                 "columns": list(_STATIONS_CSV_HEADERS.values()),
@@ -230,8 +247,8 @@ def register_station_tools(mcp):
                 "generated": generated,
                 "generated_at": datetime.now().isoformat(timespec="seconds"),
             },
-            "isError": False,
-        }
+            is_error=False,
+        )
 
     @mcp.tool()
     def find_stations_near(
@@ -257,7 +274,7 @@ def register_station_tools(mcp):
                 description="Tipo de estación: 'all' (todas), 'M' (meteorológicas), 'H' (hidrológicas)."
             ),
         ] = "all",
-    ) -> dict:
+    ) -> ToolResult:
         """
         Encuentra estaciones SENAMHI cercanas a un punto geográfico.
 
@@ -304,7 +321,7 @@ def register_station_tools(mcp):
             str | None,
             Field(description="Nombre del distrito. Case-insensitive, parcial."),
         ] = None,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Filtra estaciones SENAMHI por ubicación administrativa del Perú.
 
@@ -364,7 +381,7 @@ def register_station_tools(mcp):
                 description="Altitud máxima en msnm. Ej: 500 para zonas costeras o valles bajos."
             ),
         ] = None,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Filtra estaciones SENAMHI por rango de altitud en msnm.
 
@@ -419,7 +436,7 @@ def register_station_tools(mcp):
                 description="Filtra estaciones con datos disponibles DESPUÉS de este año (ej: 2022 para series recientes)."
             ),
         ] = None,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Consulta desde cuándo hay datos históricos disponibles para estaciones SENAMHI.
 
@@ -448,7 +465,7 @@ def register_station_tools(mcp):
 
             return build_mcp_success_response(
                 f"Estación encontrada para código '{station_code}'",
-                availability.station.model_dump(),
+                availability.station.model_dump(mode="json"),
             )
 
         availability = check_data_availability_service(
@@ -461,7 +478,7 @@ def register_station_tools(mcp):
 
         return build_mcp_success_response(
             f"{len(results)} estación(es) encontrada(s) para los filtros de disponibilidad de datos aplicados",
-            availability.model_dump() if availability else {"stations": []},
+            availability.model_dump(mode="json") if availability else {"stations": []},
         )
 
     @mcp.tool()
@@ -502,7 +519,7 @@ def register_station_tools(mcp):
                 description="Solo estaciones con datos disponibles desde ANTES de este año (para series largas)."
             ),
         ] = None,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Filtra estaciones SENAMHI combinando varios criterios en una sola consulta.
 

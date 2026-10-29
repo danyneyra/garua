@@ -1,5 +1,7 @@
 """Tools para estadísticas y resúmenes de estaciones SENAMHI."""
 
+from fastmcp.tools import ToolResult
+
 from collections import defaultdict
 
 from garua.services.station import stations
@@ -10,7 +12,7 @@ def register_stats_tools(mcp):
     """Registra las tools de estadísticas en el servidor MCP."""
 
     @mcp.tool()
-    def stations_count() -> dict:
+    def stations_count() -> ToolResult:
         """
         Devuelve el número total de estaciones SENAMHI disponibles en el catálogo local.
 
@@ -26,7 +28,7 @@ def register_stats_tools(mcp):
         )
 
     @mcp.tool()
-    def stations_summary() -> dict:
+    def stations_summary() -> ToolResult:
         """
         Devuelve un resumen global de estaciones por tipo y estado operativo.
 
@@ -58,7 +60,7 @@ def register_stats_tools(mcp):
         )
 
     @mcp.tool()
-    def get_departments_summary() -> dict:
+    def get_departments_summary() -> ToolResult:
         """
         Devuelve estadísticas de estaciones agrupadas por departamento del Perú.
 
@@ -129,7 +131,7 @@ def register_stats_tools(mcp):
         )
 
     @mcp.tool()
-    def get_location_hierarchy() -> dict:
+    def get_location_hierarchy() -> ToolResult:
         """
         Devuelve la jerarquía administrativa de ubicaciones con conteos de estaciones.
 

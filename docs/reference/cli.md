@@ -3,6 +3,8 @@ icon: lucide/play
 tags:
   - CLI
   - Comandos
+title: "Comandos y opciones de la CLI de Garúa"
+description: "Consulta los parámetros de Garúa para buscar estaciones, descargar periodos, elegir la carpeta de salida y diagnosticar la instalación."
 ---
 
 

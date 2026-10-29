@@ -1,5 +1,7 @@
 """Tools para gestión de archivos CSV descargados."""
 
+from fastmcp.tools import ToolResult
+
 from pathlib import Path
 from typing import Annotated
 
@@ -34,7 +36,7 @@ def register_file_tools(mcp):
         station_code: str,
         error_details: str | None = None,
         mcp_response: bool = True,
-    ) -> dict:
+    ) -> ToolResult:
         if not mcp_response:
             raise ValueError(
                 f"Error: {message} (Código: {error_code}, Estación: {station_name} [{station_code}]) Detalles: {error_details}"
@@ -90,6 +92,9 @@ def register_file_tools(mcp):
             include_covering_files=True,
             mcp_response=False,
         )
+
+        if not isinstance(matches, list):
+            raise ValueError("No se pudo obtener la lista de archivos descargados.")
 
         candidates = [
             item
@@ -200,7 +205,7 @@ def register_file_tools(mcp):
                 description="Si True, devuelve una respuesta MCP completa. Por defecto False."
             ),
         ] = True,
-    ) -> dict | list[dict]:
+    ) -> ToolResult | list[dict]:
         """
         Lista archivos CSV descargados localmente por Garúa.
 
@@ -344,7 +349,7 @@ def register_file_tools(mcp):
                 )
             ),
         ] = 20,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Muestra una vista previa tabular de un CSV descargado localmente.
 
@@ -498,7 +503,7 @@ def register_file_tools(mcp):
             bool,
             Field(description="Si True, sobrescribe el CSV mensual si ya existe."),
         ] = False,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Extrae un mes desde un CSV anual o multianual y crea un CSV mensual.
 

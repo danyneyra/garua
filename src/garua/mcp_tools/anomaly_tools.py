@@ -1,5 +1,7 @@
 """Tools MCP para detección de anomalías de calidad de datos."""
 
+from fastmcp.tools import ToolResult
+
 from typing import Annotated, Literal
 
 from pydantic import Field
@@ -76,7 +78,7 @@ def register_anomaly_tools(mcp):
                 )
             ),
         ] = "as_0_05",
-    ) -> dict:
+    ) -> ToolResult:
         """
         Detecta anomalías y problemas de calidad en datos SENAMHI descargados para una
         estación y periodo.

@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Require a commit already on main
+        env:
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: git merge-base --is-ancestor "$RELEASE_COMMIT" origin/main
+      - name: Validate release version and changelog
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python scripts/prepare_release.py --tag "$RELEASE_TAG"
+
+  tests:
+    needs: validate
+    uses: ./.github/workflows/tests.yml
+
+  build:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install uv
+        run: python -m pip install uv==0.11.23
+      - name: Install locked documentation dependencies
+        run: uv sync --locked --extra docs --python 3.13
+      - name: Validate and prepare release notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python scripts/prepare_release.py --tag "$RELEASE_TAG"
+      - name: Generate tools reference
+        run: uv run --no-sync python scripts/generate_tools_reference.py
+      - name: Build documentation
+        run: uv run --no-sync zensical build --clean --strict
+      - name: Build distributions
+        run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-bundle
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+            reports/release-notes.md
+          if-no-files-found: error
+
+  publish-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/garua/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-bundle
+      - name: Publish to PyPI using Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+
+  publish-github:
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-bundle
+      - name: Publish GitHub release with the same distributions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft' > draft-status.txt; then
+            if [ "$(cat draft-status.txt)" = "false" ]; then
+              echo "Release already published; leaving it unchanged."
+              exit 0
+            fi
+            gh release upload "$RELEASE_TAG" dist/*.whl dist/*.tar.gz --clobber
+            gh release edit "$RELEASE_TAG" --notes-file reports/release-notes.md
+          else
+            gh release create "$RELEASE_TAG" dist/*.whl dist/*.tar.gz --verify-tag --draft --title "Garúa $RELEASE_TAG" --notes-file reports/release-notes.md
+          fi
+          gh release edit "$RELEASE_TAG" --draft=false --latest

@@ -1,5 +1,7 @@
 """Tools MCP para comparación de periodos."""
 
+from fastmcp.tools import ToolResult
+
 from typing import Annotated
 
 from pydantic import Field
@@ -77,7 +79,7 @@ def register_comparison_tools(mcp):
                 )
             ),
         ] = False,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Compara dos o más periodos de datos de una estación SENAMHI con esquema
         autodetectado.

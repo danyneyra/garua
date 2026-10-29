@@ -1,5 +1,7 @@
 """Tools MCP para recomendación de estaciones."""
 
+from fastmcp.tools import ToolResult
+
 from typing import Annotated, Literal
 
 from pydantic import Field
@@ -73,7 +75,7 @@ def register_recommendation_tools(mcp, stations):
                 description="Cantidad máxima de recomendaciones a devolver. Por defecto 5, máximo 20."
             ),
         ] = 5,
-    ) -> dict:
+    ) -> ToolResult:
         """
         Recomienda las mejores estaciones SENAMHI para un punto geográfico dado.
 
@@ -93,6 +95,12 @@ def register_recommendation_tools(mcp, stations):
         - `alternatives`: Otras estaciones ordenadas por score
         - `score_breakdown`: Desglose detallado del score
         - `reason`: Explicación en español de por qué se recomienda
+
+        Incluye estados del catálogo, disponibilidad anunciada, fechas y note.
+        Explica si la recomendada figura absent o se desconoce el listado de
+        meses anunciados en su ficha (periods_unknown). Este estado no evalúa la
+        calidad del contenido descargado. El score no confirma actividad actual
+        ni continuidad de datos.
 
         USA ESTA TOOL cuando el usuario:
         - Necesite encontrar la mejor estación para un proyecto o ubicación
@@ -121,5 +129,5 @@ def register_recommendation_tools(mcp, stations):
         message += f". {result.message}"
 
         return build_mcp_success_response(
-            message=message, structured_data=result.model_dump()
+            message=message, structured_data=result.model_dump(mode="json")
         )

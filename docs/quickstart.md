@@ -3,6 +3,8 @@ icon: lucide/package-open
 tags:
   - Primeros pasos
 
+title: "Primeros pasos: buscar estaciones y descargar datos"
+description: "Comienza con Garúa: instala la herramienta, busca una estación del SENAMHI y descarga tu primer archivo CSV de datos históricos."
 ---
 
 # Primeros pasos
@@ -11,10 +13,14 @@ Esta guía muestra el camino más corto para instalar Garúa, buscar una estaci�
 
 ## 1. Instala Garúa
 
+Instala [uv](https://docs.astral.sh/uv/getting-started/installation/) primero;
+la [guía de instalación](installation.md) incluye los pasos por sistema operativo.
+Recomendamos uv para mantener las dependencias de Garúa en un entorno propio.
+
 <div class="garua-terminal" data-garua-terminal markdown="1" aria-label="Instalación rápida de Garúa en terminal">
 
 ```console
-$ pip install garua
+$ uv tool install garua
 ████████████████████████████████ 100%
 
 $ garua --doctor

@@ -6,6 +6,8 @@ tags:
   - S/D
   - Trazas
 
+title: "Datos faltantes, trazas y calidad de las series del SENAMHI"
+description: "Consulta cómo interpreta Garúa los valores S/D y T, los datos faltantes y los controles de calidad al resumir y comparar series del SENAMHI."
 ---
 
 # Calidad de datos

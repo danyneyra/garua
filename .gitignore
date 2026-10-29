@@ -29,6 +29,9 @@ test/
 reports/
 exports/
 
+# Local SENAMHI snapshot (comparison input, not published data)
+/src/garua/data/stations.json
+
 
 # Logs
 *.log

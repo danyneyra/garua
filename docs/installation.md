@@ -6,17 +6,69 @@ tags:
   - Configurar MCP
   - pip
   - pipx
+  - uv
   - MCP
 
+title: "Instalar Garúa con uv, pipx o pip"
+description: "Instala Garúa en Windows, macOS o Linux con uv, pipx o pip. Comprueba los requisitos y configura el servidor MCP en tu cliente de IA."
 ---
 
 # Instalación
 
 Garúa puede instalarse como herramienta CLI y como servidor MCP. La instalación base es la misma; lo que cambia es cómo lo conectas a tu flujo de trabajo.
 
+## Instalar con ayuda de un asistente de IA
+
+Copia este prompt en un asistente que pueda ejecutar comandos en tu equipo.
+Si solo puede conversar, te guiará para ejecutarlos tú. No necesitas conocer
+de antemano los comandos ni las rutas de instalación.
+
+```text
+Ayúdame a instalar Garúa, la herramienta CLI y servidor MCP para consultar
+estaciones y datos del SENAMHI Perú. Tengo poca experiencia con la terminal.
+
+Consulta la guía oficial: https://garua.danyneyra.dev/installation/
+El paquete de PyPI es garua y su repositorio es https://github.com/danyneyra/garua.
+
+1. Detecta mi sistema operativo y terminal. Si puedes ejecutar comandos,
+   realiza la instalación; si no, dame un paso cada vez y espera su resultado.
+2. Comprueba si uv y Garúa ya están instalados y desde qué rutas se ejecutan.
+   Si Garúa ya funciona, conserva esa instalación y compruébala. No crees
+   instalaciones duplicadas ni la actualices sin que yo lo pida.
+3. Si falta uv, instálalo con un método oficial apropiado para mi sistema:
+   https://docs.astral.sh/uv/getting-started/installation/
+   Comprueba después uv --version y resuelve el PATH si hace falta.
+4. Instala la versión estable publicada de Garúa en un entorno aislado con
+   uv tool install --python 3.13 garua. Si necesito otra versión concreta,
+   respétala. Revisa las notas de compatibilidad de esa publicación; no
+   instales el código de desarrollo ni actualices FastMCP o MCP por separado.
+5. Comprueba garua --version, garua --help y garua --health. Verifica también
+   la ruta de garua-mcp. Si hay errores, explica y resuelve su causa antes
+   de declarar que la instalación funciona.
+6. Garúa usa Chrome, Brave o Edge para descargar datos. Si falta un navegador
+   compatible, indícamelo y ayúdame a elegir uno. No descargues datos de
+   SENAMHI ni abras sesiones de scraping para probar la instalación.
+7. Pregúntame si quiero usar solo la CLI o también conectarlo a un cliente MCP.
+   Si quiero MCP, pregunta qué aplicación uso y sigue su configuración actual.
+   Usa la ruta real de garua-mcp si la aplicación no hereda el PATH. Conserva
+   los demás servidores y ajustes existentes al añadir Garúa.
+8. Si el cliente requiere reiniciarse, indícamelo. Cuando puedas comprobar
+   la conexión, prueba una consulta del catálogo local, sin descargar datos.
+   Distingue entre paquete instalado, servidor configurado y conexión probada.
+
+Al terminar, resume qué instalaste, las versiones y rutas, las comprobaciones
+realizadas y cualquier paso pendiente. Explícame cómo iniciar Garúa y cómo
+actualizarlo después con uv tool upgrade garua. Usa lenguaje sencillo y no
+afirmes que algo funcionó si no pudiste comprobarlo.
+```
+
+La IA puede ayudarte a instalar y configurar el programa; la instalación de
+Garúa no conecta automáticamente tu asistente al servidor MCP.
+
 ## Requisitos
 
-- Python 3.11+; se recomienda usar una versión reciente de [Python].
+- Python 3.11+. Puedes instalar [Python] por tu cuenta o dejar que uv gestione
+  Python 3.13 con `uv tool install --python 3.13 garua`.
 - Windows, macOS o Linux.
 - Acceso a internet para instalar el paquete y descargar datos desde SENAMHI.
 - [Google Chrome], Brave o Microsoft Edge instalado. Garúa usa un navegador local
@@ -52,9 +104,9 @@ Garúa puede instalarse como herramienta CLI y como servidor MCP. La instalació
 
 ## Instalar Garúa desde PyPI
 
-Garúa se publica en [PyPI](https://pypi.org/project/garua/). Puedes instalarlo con `pip` o con `pipx`.
-
-Usa `pip` si ya trabajas con entornos de Python o quieres instalar Garúa dentro de un proyecto. Usa `pipx` si quieres usar Garúa como herramienta de terminal, especialmente en Windows o cuando prefieres no ajustar manualmente el `PATH`.
+Garúa se publica en [PyPI](https://pypi.org/project/garua/). Recomendamos **uv**:
+crea un entorno propio para Garúa y expone `garua` y `garua-mcp` en la terminal.
+También puedes usar pipx o pip dentro de un entorno virtual.
 
 Si usas Windows y tienes poca experiencia con la terminal, puedes abrir **CMD**
 desde el menú Inicio: escribe `cmd` o **Símbolo del sistema** en el buscador y
@@ -64,10 +116,58 @@ instalación; no lo escribas en el navegador ni en el buscador de Windows.
 También puedes seguir el video [Instalación y uso de Garúa](https://www.youtube.com/watch?v=q5I_q8GrOZ0&t=418s),
 que muestra este proceso paso a paso.
 
-=== ":simple-python: pip"
+=== ":simple-uv:  uv (recomendado)"
+
+    Instala uv primero si todavía no lo tienes.
+
+    En Windows, abre PowerShell y ejecuta:
+
+    ```powershell
+    winget install --id=astral-sh.uv -e
+    ```
+
+    En macOS con Homebrew:
 
     ```bash
-    pip install garua
+    brew install uv
+    ```
+
+    En Linux y para otros métodos, sigue la
+    [guía oficial de instalación de uv](https://docs.astral.sh/uv/getting-started/installation/).
+
+    Abre una terminal nueva. Comprueba uv e instala Garúa:
+
+    ```bash
+    uv --version
+    uv tool install garua
+    uv tool update-shell
+    ```
+
+    Si no tienes un Python compatible, pide a uv que gestione Python 3.13:
+
+    ```bash
+    uv tool install --python 3.13 garua
+    ```
+
+    Vuelve a abrir la terminal después de actualizar el PATH y ejecuta
+    `garua --health`. La instalación se hace una vez; después puedes usar
+    `garua` y `garua-mcp` directamente, sin activar un entorno virtual.
+
+    Consulta [cómo funcionan los entornos de herramientas de uv](https://docs.astral.sh/uv/concepts/tools/).
+
+=== ":simple-python: pip con entorno virtual"
+
+    Crea un entorno exclusivo para Garúa:
+
+    ```bash
+    python -m venv .venv-garua
+    ```
+
+    Actívalo con `.\.venv-garua\Scripts\Activate.ps1` en PowerShell o
+    `source .venv-garua/bin/activate` en Linux/macOS. Luego instala:
+
+    ```bash
+    python -m pip install garua
     ```
 
     Verifica la instalación:
@@ -142,6 +242,26 @@ operativo, directorios de salida y navegador disponible. También puedes usar el
 alias `garua --health`.
 
 ## Actualizar Garúa
+
+Si lo instalaste con uv:
+
+```bash
+uv tool upgrade garua
+garua --health
+```
+
+Después de actualizar, reinicia el cliente MCP. Actualiza Garúa como paquete;
+no instales FastMCP o MCP por separado dentro de su entorno. El aislamiento
+evita conflictos con otros proyectos, pero no sustituye los límites de versiones
+que declara Garúa. Para reinstalar el entorno de uv si fue modificado:
+
+```bash
+uv tool install --force --reinstall garua
+```
+
+Para fijar una publicación concreta puedes usar `uv tool install "garua==0.31.0"`.
+Esto fija Garúa, no todas sus dependencias; las publicaciones antiguas pueden
+tener rangos abiertos. Consulta la [política de compatibilidad MCP](development/fastmcp-4.md).
 
 Usa el mismo gestor con el que instalaste Garúa.
 
