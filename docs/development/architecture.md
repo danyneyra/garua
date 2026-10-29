@@ -1,5 +1,7 @@
 ---
 icon: lucide/folder-tree
+title: "Arquitectura de Garúa: CLI, MCP y servicios"
+description: "Conoce la organización del código de Garúa y la separación entre CLI, servidor MCP, servicios de análisis, scraping y almacenamiento de datos."
 ---
 
 # Arquitectura

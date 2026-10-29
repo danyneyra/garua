@@ -2,6 +2,8 @@
 icon: lucide/files
 tags:
   - Comparar estaciones
+title: "Comparar meses y años de datos del SENAMHI"
+description: "Compara periodos de una estación del SENAMHI con Garúa. Revisa diferencias en las variables disponibles y las advertencias del análisis."
 ---
 
 # Comparar periodos

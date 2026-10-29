@@ -4,6 +4,8 @@ tags:
   - Descargar
   - CSV
   - Datos
+title: "Descargar datos históricos del SENAMHI en CSV"
+description: "Aprende a descargar datos meteorológicos e hidrológicos del SENAMHI en CSV con Garúa, por mes, año o rango de años."
 ---
 
 # Descargar datos

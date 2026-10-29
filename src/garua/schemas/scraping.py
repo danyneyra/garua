@@ -1,3 +1,5 @@
+from fastmcp.tools import ToolResult
+from garua.schemas.result import build_tool_result
 from typing import Optional
 from mcp.types import TextContent
 
@@ -20,10 +22,13 @@ def _append_open_file_options(message: str, files_info: list[FileInfo]) -> str:
     for file_info in files_info:
         lines.append(f"Archivo disponible: {file_info.name} \n")
         lines.append(f"Ruta: {file_info.uri} \n")
+        if file_info.resource_uri:
+            lines.append(f"Lectura mediante MCP: {file_info.resource_uri}\n")
         lines.append("\n")
 
     lines.append(
-        "\nLos archivos están disponibles como recursos adjuntos a esta respuesta. Puedes abrirlo desde el recurso adjunto o desde la ruta indicada."
+        "\nLa apertura de rutas locales y la presentación como adjunto dependen del cliente. "
+        "Si hay una URI MCP, el cliente puede leer el CSV mediante resources/read."
     )
     return message.rstrip() + "\n" + "\n".join(lines)
 
@@ -34,27 +39,27 @@ def build_scraping_error_response(
     station_code: Optional[str] = None,
     station_name: Optional[str] = None,
     details: Optional[str] = None,
-) -> dict:
+) -> ToolResult:
     """
     Construye una respuesta de error para operaciones de scraping, incluyendo contenido legible y datos estructurados.
     """
 
-    return {
-        "content": [
+    return build_tool_result(
+        content=[
             TextContent(
                 text=message,
                 type="text",
             )
         ],
-        "structuredContent": ScrapingErrorResponse(
+        structured_content=ScrapingErrorResponse(
             message=message,
             station_code=station_code,
             station_name=station_name,
             error_code=error_code,
             details=details,
         ),
-        "isError": True,
-    }
+        is_error=True,
+    )
 
 
 def build_scraping_success_response(
@@ -66,7 +71,7 @@ def build_scraping_success_response(
     stats: dict,
     files: Optional[list[str]] = None,
     extracted_from: Optional[str] = None,
-) -> dict:
+) -> ToolResult:
     """
     Construye una respuesta de éxito para operaciones de scraping, incluyendo contenido legible y datos estructurados.
     """
@@ -90,9 +95,9 @@ def build_scraping_success_response(
     if resource_links:
         content.extend(resource_links)
 
-    return {
-        "content": content,
-        "structuredContent": ScrapingSuccessResponse(
+    return build_tool_result(
+        content=content,
+        structured_content=ScrapingSuccessResponse(
             message=message,
             station_name=station_name,
             station_code=station_code,
@@ -101,6 +106,6 @@ def build_scraping_success_response(
             stats=Stats(**stats),
             files=files_info,
             extracted_from=extracted_from,
-        ).model_dump(),
-        "isError": False,
-    }
+        ).model_dump(mode="json"),
+        is_error=False,
+    )

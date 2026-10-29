@@ -298,6 +298,8 @@ def render(tools: list[ToolDoc]) -> str:
     lines = [
         "---",
         "icon: lucide/hammer",
+        'title: "Herramientas MCP de Garúa: parámetros y ejemplos"',
+        'description: "Consulta las herramientas MCP de Garúa, sus parámetros y ejemplos para buscar estaciones, descargar datos, explorar CSV y analizar periodos."',
         "tags:",
         "  - Tools MCP",
         "  - Referencia",

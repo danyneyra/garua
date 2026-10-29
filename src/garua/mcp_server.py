@@ -30,8 +30,11 @@ Organización modular:
 import sys
 from pathlib import Path
 
-from fastmcp import FastMCP
+from .mcp_compat import ensure_mcp_compatibility
 
+ensure_mcp_compatibility()
+
+from fastmcp import FastMCP
 from . import settings
 from mcp.types import Icon
 from .mcp_tools.anomaly_tools import register_anomaly_tools
@@ -42,6 +45,8 @@ from .mcp_tools.recommendation_tools import register_recommendation_tools
 from .mcp_tools.station_tools import register_station_tools
 from .mcp_tools.stats_tools import register_stats_tools
 from .mcp_tools.summary_tools import register_summary_tools
+from .mcp_prompts import register_prompts
+from .mcp_resources import register_resources
 from .services.station import stations
 
 # En Windows el codec por defecto (charmap/cp1252) no soporta emojis.
@@ -58,7 +63,7 @@ sys.path.insert(0, str(PACKAGE_ROOT))
 # ── Servidor ───────────────────────────────────────────────────────────────────
 svg_icon = Icon(
     src="data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDk2IDk2IiB3aWR0aD0iOTYiIGhlaWdodD0iOTYiPgoJPHN0eWxlPgoJCS5zMCB7IGZpbGw6ICM2NDY5ZTMgfSAKCQkuczEgeyBmaWxsOiAjZmZmZmZmIH0gCgk8L3N0eWxlPgoJPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGFzcz0iczAiIGQ9Im03My42OCA1NS4xN2MtMi4yMSAyMi4wMS0xMi4yMyAzOC43OC0zNi4xIDI3LjQ5LTIzLjA2LTQuNTQtMTcuNTktMjguMTktMTAuMTQtNDEuNDYgOC42Mi0xNC43OSAyNS42My0yNS4xNiAzNS42NC0zMC41MiAxLjE3LTAuNTggMS45OC0xLjA0IDIuOC0xLjUxcTEuMDUtMC40NyAxLjM5IDAuMzVjMC40NyAwLjkzIDAuODIgMS44NiAxLjE3IDIuOTEgNC4zMSAxMiA2LjY0IDI4LjQyIDUuMjQgNDIuNzR6Ii8+Cgk8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsYXNzPSJzMSIgZD0ibTUwLjI3IDc4LjM1Yy01LjE1IDAtOS4zMi0yLjIxLTkuMzItNC45NSAwLTIuNzQgNC4xNy00Ljk1IDkuMzItNC45NSA1LjE1IDAgOS4zMiAyLjIxIDkuMzIgNC45NSAwIDIuNzQtNC4xNyA0Ljk1LTkuMzIgNC45NXoiLz4KPC9zdmc+",
-    mimeType="image/svg+xml",
+    mime_type="image/svg+xml",
 )
 
 mcp = FastMCP(
@@ -66,7 +71,11 @@ mcp = FastMCP(
     instructions=(
         "Eres Garua, un asistente especializado en estaciones meteorológicas e "
         "hidrológicas del SENAMHI (Perú). "
-        "Regla principal: para responder, SIEMPRE usa las tools de este servidor. "
+        "Regla principal: para responder usa las capacidades MCP de este servidor. "
+        "Consulta Resources para catálogo, esquemas y contexto estable; usa las "
+        "tools para búsquedas dinámicas, descargas, transformaciones y análisis. "
+        "Si el cliente ofrece Prompts, úsalos para seguir los flujos de análisis "
+        "predefinidos. "
         "No escribas código Python, scripts, cálculos manuales ni implementaciones "
         "propias para buscar estaciones, filtrar resultados, recomendar estaciones, "
         "consultar disponibilidad, listar archivos, leer CSV, descargar datos, "
@@ -74,11 +83,23 @@ mcp = FastMCP(
         "No inventes datos ni supongas resultados: si falta información, obténla con "
         "las tools adecuadas y, solo si es necesario, pide al usuario el dato mínimo "
         "faltante. "
-        "Selecciona siempre la tool más específica para la intención del usuario. "
+        "Al seleccionar una estación o antes de una descarga consulta su ficha y revisa "
+        "catalog_status, availability_status, catalog_checked_at, availability_checked_at y note. "
+        "catalog_status=absent significa que no figura en el listado consultado en esa fecha, "
+        "no que haya una baja oficial; puede conservar datos históricos. "
+        "periods_announced indica meses anunciados, no observaciones confirmadas ni continuidad "
+        "hasta hoy. no_periods_announced no demuestra ausencia total de datos. "
+        "periods_unknown significa que no se conoce el listado de meses anunciados en la ficha. "
+        "Nunca lo presentes como datos sin verificar, poco confiables o sin datos: este campo "
+        "no evalúa la autenticidad, exactitud ni calidad del contenido descargado de SENAMHI. "
+        "Explica estas limitaciones cuando afecten la consulta; no ocultes estaciones ni "
+        "bloquees una solicitud explícita por estos estados. "
+        "Selecciona siempre el Resource, Prompt o tool más específico para la intención del usuario. "
         "Guía operativa: usa search_stations si el usuario menciona una estación por "
         "nombre o código; usa filter_stations_* o find_stations_near para explorar o "
         "filtrar estaciones; usa get_station_info para ver el detalle completo de una "
-        "estación; usa check_data_availability para validar cobertura histórica; usa "
+        "estación o garua://catalog/stations/{station_code} para consultar su ficha; "
+        "usa check_data_availability para validar cobertura histórica; usa "
         "recommend_station_for_point_tool para recomendar estaciones; usa "
         "list_downloaded_files, read_csv_preview y extract_month_from_csv para "
         "trabajar con archivos locales; usa scrape_station_data solo cuando el usuario "
@@ -104,6 +125,8 @@ register_recommendation_tools(mcp, stations)
 register_comparison_tools(mcp)
 register_anomaly_tools(mcp)
 register_summary_tools(mcp)
+register_resources(mcp)
+register_prompts(mcp)
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────

@@ -1,5 +1,7 @@
 ---
 icon: lucide/server
+title: "Desarrollar el servidor MCP de Garúa"
+description: "Consulta la estructura del servidor MCP de Garúa, el registro de herramientas y las convenciones para implementar respuestas y flujos de análisis."
 ---
 
 # Servidor MCP
@@ -20,6 +22,9 @@ python -m garua_mcp
 
 El servidor se define en `src/garua/mcp_server.py`. Ahí se crea la instancia de
 FastMCP, se carga el catálogo de estaciones y se registran los módulos de tools.
+
+La migración a FastMCP 4.1.4, los límites de dependencias y las pruebas del
+protocolo están descritos en [Compatibilidad MCP](fastmcp-4.md).
 
 | Módulo | Grupo funcional |
 | --- | --- |
@@ -59,7 +64,7 @@ def search_stations(
         str,
         Field(description="Código exacto o nombre parcial de la estación."),
     ],
-) -> dict:
+) -> ToolResult:
     """
     Busca estaciones SENAMHI por código o por nombre.
 
@@ -124,3 +129,38 @@ de usuario está documentada en [Instalación](../installation.md#configurar-mcp
 - [Arquitectura](architecture.md){data-preview}
 - [Referencia de tools MCP](../reference/tools.md){data-preview}
 - [Uso MCP](../usage/mcp.md){data-preview}
+## Progreso de descargas
+
+La entrega de CSV, los límites de contenido embebido y la integración opcional
+con Filesystem se describen en [Entrega de archivos](file-delivery.md).
+
+`scrape_station_data` recibe `Context` mediante `CurrentContext()`; este parámetro
+no forma parte del esquema público de argumentos. El servicio y el scraper
+aceptan un callback asíncrono opcional `on_progress(message)`, sin depender de MCP.
+La tool convierte los eventos en `ctx.report_progress()`.
+
+Los mensajes incluyen preparación, extracción local, conexión, periodos
+identificados, periodo actual y estación, reintentos, pausas entre años,
+periodos procesados o fallidos, guardado consolidado y resultado final. La
+finalización se emite después de que el scraper libere el navegador.
+
+El valor numérico cuenta eventos y aumenta durante una llamada; `total` se omite
+porque preparación y reintentos no tienen un número predecible de pasos. No es
+un porcentaje de tiempo ni un contador de descargas exitosas. El mensaje indica
+el periodo actual y el total de opciones disponibles. Los errores parciales se
+conservan en el resultado estructurado final.
+
+El cliente debe enviar `progressToken` y representar las notificaciones para
+mostrarlas. Sin token, FastMCP omite el envío. El progreso no garantiza mensajes
+intermedios en el chat ni elimina los timeouts del cliente. No se crean tareas
+persistentes ni se continúa la operación después de una desconexión por este mecanismo.
+
+Pruebas sin red ni navegador:
+
+```bash
+python -m unittest discover -s scripts -p "test_scraping*.py"
+```
+
+Incluyen una descarga simulada a través de stdio con ambos protocolos,
+progreso creciente, reintentos, resultado parcial, extracción local y ausencia
+de token. `scraping_progress_fixture.py` es exclusivamente un servidor de prueba.

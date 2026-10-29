@@ -9,6 +9,7 @@ from garua.models.recommendation import (
     StationRecommendation,
 )
 from garua.models.station import Station
+from garua.schemas.station import station_tracking_serializer
 
 # Scores por defecto para estados operativos
 DEFAULT_STATUS_SCORES = {
@@ -384,6 +385,9 @@ def recommend_station_for_point(
             "score": final_score,
             "score_breakdown": breakdown,
         }
+
+        # Keep catalog evidence alongside the score; it does not imply a closure.
+        station_data.update(station_tracking_serializer(station))
 
         # Generar razón
         reason = build_reason(station_data, breakdown, has_target_alt)

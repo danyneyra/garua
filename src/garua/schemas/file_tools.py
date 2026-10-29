@@ -1,3 +1,5 @@
+from fastmcp.tools import ToolResult
+from garua.schemas.result import build_tool_result
 from typing import Optional
 from mcp.types import TextContent
 
@@ -16,7 +18,7 @@ def build_extracted_data_success_response(
     source_files: Optional[list[str]] = None,
     output_files: Optional[list[str]] = None,
     overwrite: bool = True,
-) -> dict:
+) -> ToolResult:
     """Construye una respuesta exitosa para datos extraídos."""
     content: list = [
         TextContent(
@@ -46,9 +48,9 @@ def build_extracted_data_success_response(
         if resource_links:
             content.extend(resource_links)
 
-    return {
-        "content": content,
-        "structuredContent": ExtractFilesResponse(
+    return build_tool_result(
+        content=content,
+        structured_content=ExtractFilesResponse(
             message=message,
             station_name=station_name,
             station_code=station_code,
@@ -59,8 +61,8 @@ def build_extracted_data_success_response(
             output_files=output_files_info or [],
             overwrite=overwrite,
         ),
-        "isError": False,
-    }
+        is_error=False,
+    )
 
 
 def build_csv_preview_success_response(
@@ -72,7 +74,7 @@ def build_csv_preview_success_response(
     truncated: bool,
     truncated_reason: str | None,
     source_file: str,
-) -> dict:
+) -> ToolResult:
     """Construye una respuesta MCP para vistas previas de CSV."""
     content: list = [
         TextContent(
@@ -85,9 +87,9 @@ def build_csv_preview_success_response(
     if resource_links:
         content.extend(resource_links)
 
-    return {
-        "content": content,
-        "structuredContent": CsvPreviewResponse(
+    return build_tool_result(
+        content=content,
+        structured_content=CsvPreviewResponse(
             message=message,
             columns=columns,
             rows=rows,
@@ -98,5 +100,5 @@ def build_csv_preview_success_response(
             truncated=truncated,
             truncated_reason=truncated_reason,
         ).model_dump(),
-        "isError": False,
-    }
+        is_error=False,
+    )

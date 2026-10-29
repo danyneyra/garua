@@ -3,6 +3,8 @@ icon: lucide/container
 tags:
   - Variables de entorno
   - ENV
+title: "Variables de entorno y configuración de Garúa"
+description: "Configura las carpetas de Garúa, el navegador y los tiempos de descarga mediante variables de entorno. Consulta sus valores y ejemplos de uso."
 ---
 
 # Variables de entorno

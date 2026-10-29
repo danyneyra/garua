@@ -1,5 +1,5 @@
 from pydantic import AnyUrl, BaseModel, Field, AfterValidator
-from typing import Optional, Literal, Annotated
+from typing import Optional, Annotated
 
 
 def to_upper(v: str) -> str:
@@ -17,10 +17,11 @@ class FileInfo(BaseModel):
     )
     uri: AnyUrl = Field(
         ...,
-        description=(
-            "URI del archivo generado. Si el archivo pertenece a la carpeta CSV "
-            "configurada, se usa el esquema file://csv/..."
-        ),
+        description=("URI file:// local del archivo. Su apertura depende del cliente."),
+    )
+    resource_uri: Optional[str] = Field(
+        None,
+        description="URI garua:// legible con resources/read, sin acceso directo al disco.",
     )
     mime_type: Annotated[
         Optional[str],
@@ -66,12 +67,15 @@ class ResponseBase(BaseModel):
 class SuccessResponse(ResponseBase):
     """Modelo específico para respuestas exitosas"""
 
-    success: Annotated[
-        Literal[True],
-        Field(default=True, description="Indica que la operación fue exitosa"),
-    ] = True
-    station_name: str = Field(..., description="Nombre de la estación relacionada")
-    station_code: str = Field(..., description="Código de la estación relacionada")
+    success: bool = Field(
+        default=True, description="Indica que la operación fue exitosa"
+    )
+    station_name: Optional[str] = Field(
+        ..., description="Nombre de la estación relacionada"
+    )
+    station_code: Optional[str] = Field(
+        ..., description="Código de la estación relacionada"
+    )
     mode: str = Field(..., description="Modo de descarga utilizado")
     period: str = Field(
         ..., description="Periodo de datos descargados (e.g., '2020', '2020-2021')"
@@ -81,10 +85,7 @@ class SuccessResponse(ResponseBase):
 class ErrorResponse(ResponseBase):
     """Modelo específico para errores de scraping"""
 
-    success: Annotated[
-        Literal[False],
-        Field(default=False, description="Indica que la operación falló"),
-    ] = False
+    success: bool = Field(default=False, description="Indica que la operación falló")
     error_code: UpperStr = Field(
         ..., description="Código de error específico en mayúsculas"
     )

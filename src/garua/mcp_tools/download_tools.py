@@ -1,5 +1,9 @@
 """Tools para descarga de datos desde SENAMHI."""
 
+from fastmcp.tools import ToolResult
+from fastmcp.dependencies import CurrentContext
+from fastmcp.server.context import Context
+
 from typing import Annotated
 
 from pydantic import Field
@@ -30,7 +34,8 @@ def register_download_tools(mcp):
             str | None,
             Field(
                 description=(
-                    "Modo de descarga: "
+                    "Para varios meses específicos usa periods en una sola llamada. "
+                    "En otros casos: "
                     "'month' = un mes específico (requiere year + month), "
                     "'year' = un año completo (requiere year), "
                     "'period' = rango de años (requiere start_year + end_year). "
@@ -41,12 +46,14 @@ def register_download_tools(mcp):
         year: Annotated[
             int | None,
             Field(
-                description="Año (ej: 2025). Requerido para mode='month' o mode='year'."
+                description="Año (ej: 2025) para mode='month' o 'year'. Para varios meses específicos usa periods."
             ),
         ] = None,
         month: Annotated[
             int | None,
-            Field(description="Mes como número (1-12). Requerido para mode='month'."),
+            Field(
+                description="Un único mes (1-12) para mode='month'. Para varios meses usa periods en una sola llamada."
+            ),
         ] = None,
         start_year: Annotated[
             int | None,
@@ -59,19 +66,19 @@ def register_download_tools(mcp):
         individual: Annotated[
             bool,
             Field(
-                description="True = genera un CSV por mes. False (por defecto) = CSV consolidado."
+                description="Para mode='year' o 'period': True genera un CSV por mes; False consolida. Con periods o mode='month' siempre se genera un CSV por mes."
             ),
         ] = False,
         periods: Annotated[
             list[ScrapingPeriod] | None,
             Field(
                 description=(
-                    "Lista de periodos específicos a descargar en una sola sesión de navegador "
-                    "(MÁS EFICIENTE para múltiples meses). Cada periodo debe tener 'year' y 'month'. "
-                    "Máximo 12 periodos. "
-                    "Ejemplo: [{'year': 2025, 'month': 3}, {'year': 2026, 'month': 3}]. "
-                    "Si se provee, ignora mode/year/month/start_year/end_year. "
-                    "BENEFICIO: Abre el navegador UNA SOLA VEZ en lugar de N veces."
+                    "Opción preferida para varios meses de la misma estación, consecutivos "
+                    "o separados, incluso entre años. Una llamada y como máximo una sesión "
+                    "de navegador; genera un CSV por mes. De 1 a 12 periodos con year y month. "
+                    "Ejemplo enero-marzo: [{'year': 2025, 'month': 1}, "
+                    "{'year': 2025, 'month': 2}, {'year': 2025, 'month': 3}]. "
+                    "Omite mode/year/month/start_year/end_year cuando uses periods."
                 )
             ),
         ] = None,
@@ -84,71 +91,71 @@ def register_download_tools(mcp):
                 )
             ),
         ] = False,
-    ) -> dict:
+        ctx: Context = CurrentContext(),
+    ) -> ToolResult:
         """
         Descarga datos históricos del SENAMHI para una estación y los guarda como CSV.
 
-        Usa esta tool solo cuando el usuario pida explícitamente descargar, obtener,
-        bajar, traer o actualizar datos SENAMHI. Esta tool no resume, compara ni valida
-        los datos; solo gestiona la descarga o extracción de archivos CSV.
+        Para descargar varios meses específicos de una misma estación, usa UNA
+        llamada con periods (máximo 12), no una llamada mode="month" por mes.
+        Aplica a meses consecutivos, separados y de distintos años. Para más de
+        12 meses específicos divide en lotes de hasta 12.
 
-        NOTA: Si se descargan archivos siempre intenta incluir enlaces directos a los archivos usando file:// o resource_link para que el usuario pueda hacer clic y abrir el archivo directamente desde la respuesta del MCP.
+        Ejemplo enero a marzo de 2025:
+        {"station_code": "106145", "periods": [
+            {"year": 2025, "month": 1},
+            {"year": 2025, "month": 2},
+            {"year": 2025, "month": 3}
+        ]}
 
-        IMPORTANTE PARA MCP CLIENTS:
-        Si esta tool retorna success=true, NO llames list_downloaded_files inmediatamente.
-        Esta respuesta ya incluye las rutas generadas en `files` y en `message`.
-        Usa list_downloaded_files solo cuando el usuario pregunte explícitamente qué archivos existen localmente.
+        Selección de argumentos:
+        - Varios meses específicos: periods; omite mode y los argumentos de fecha
+          independientes. Se usa como máximo una sesión de navegador por llamada
+          y se genera un CSV por mes.
+        - Un solo mes: mode="month", year y month.
+        - Un año completo: mode="year" y year.
+        - Años completos: mode="period", start_year y end_year.
+        - individual solo controla la consolidación en mode="year" o "period".
 
-        COMPORTAMIENTO INTELIGENTE (mode='month', force_download=False):
-        1. Primero busca archivos consolidados existentes, por ejemplo Estacion-2017-2020.csv
-        2. Si encuentra el mes solicitado, lo extrae y retorna rapidamente
-        3. Si no encuentra el mes localmente, descarga desde SENAMHI
+        Úsala cuando el usuario pida descargar, traer o actualizar datos. Puede
+        abrir un navegador y tardar varios minutos. Si falta el código, resuélvelo
+        con search_stations. Para meses mediante periods o mode="month", intenta
+        extraer datos de consolidados locales antes de descargar. Si pide actualizar
+        o descargar de nuevo, usa force_download=True para omitir esa extracción.
 
-        FORZAR DESCARGA (force_download=True):
-        - Ignora archivos locales y consolidados existentes
-        - Vuelve a consultar SENAMHI aunque el periodo ya exista localmente
-        - Usalo cuando el usuario pida actualizar, refrescar, descargar de nuevo o volver a bajar datos
-        - Recomendado para el mes actual, porque una descarga hecha a mitad de mes puede estar incompleta
-        - Util para regenerar archivos creados con versiones antiguas de Garua
+        El resultado incluye success, message, station_name, station_code, mode,
+        period, files (metadatos, rutas, URI local y resource_uri MCP cuando está
+        disponible), stats (successful, failed, total)
+        y extracted_from; en errores incluye error_code y details. Conserva los
+        fallos parciales. Las rutas y enlaces ya vienen en el resultado: no llames
+        list_downloaded_files inmediatamente para volver a obtenerlos. Su apertura
+        depende del cliente. Para leer un archivo sin acceso al disco, usa su
+        resource_uri mediante resources/read. Los CSV pequeños también pueden
+        venir como recursos embebidos; eso no garantiza un adjunto descargable.
 
-        MODO EFICIENTE (parametro periods):
-        - Descarga multiples meses en una sola sesion de navegador
-        - Ideal antes de comparar periodos con compare_periods_tool
-        - Maximo 12 periodos por llamada
-        - Ejemplo: periods=[{"year": 2025, "month": 3}, {"year": 2026, "month": 3}]
+        Entrega al usuario: si el cliente dispone de herramientas Filesystem con
+        acceso a files[].path, puede leer un CSV con read_text_file o varios con
+        read_multiple_files. Usa las herramientas realmente disponibles y sus
+        directorios autorizados. Si dispone además de un entorno para guardar
+        archivos y un mecanismo de adjuntos (por ejemplo present_files), puede
+        guardar allí el contenido completo y presentarlo, conservando el original.
+        Leer mediante Filesystem no copia automáticamente al entorno del cliente.
+        Si estas capacidades no existen, devuelve las rutas y URI disponibles;
+        para obtener el contenido también puede usar resource_uri o los recursos
+        embebidos. No afirmes que se adjuntó o copió un archivo sin haberlo hecho.
 
-        Encadenamiento recomendado:
-        - Si el usuario pide "compara marzo 2025 vs marzo 2026" y los datos no existen,
-        primero usa esta tool con periods y luego compare_periods_tool.
-        - Si el usuario pide "actualiza mayo 2026 y resumelo", usa esta tool con
-        force_download=True y luego summarize_station_data_tool.
-
-        Modos soportados:
-        - mode="month": descarga o extrae un mes especifico
-        - mode="year": descarga un ano completo
-        - mode="period": descarga un rango de anos
-        - periods=[...]: descarga multiples meses especificos eficientemente
-
-        Advertencia:
-        - Puede lanzar un navegador.
-        - Puede tardar varios minutos si necesita descargar desde SENAMHI.
-        - No la uses automaticamente si el usuario solo pide analizar datos ya disponibles.
-        - Para resumen usa summarize_station_data_tool.
-        - Para comparacion usa compare_periods_tool.
-        - Para calidad/anomalias usa detect_anomalies_tool.
-
-        Retorna JSON con:
-        - success: bool
-        - message: mensaje con rutas de archivos generados
-        - station: nombre de la estacion
-        - mode: modo usado
-        - period: periodo descargado
-        - files: lista de rutas de CSV generados
-        - stats: {successful, total, partial}
-        - extracted_from: archivo consolidado origen, si extrajo localmente
-        - force_download: bool indicando si se ignoro cache local
-        - error: detalle del error, solo si success=false
+        Para resumir, comparar o detectar anomalías usa las tools específicas;
+        esta tool descarga o extrae archivos. Si faltan varios meses antes de un
+        análisis, descárgalos juntos con periods y luego ejecuta el análisis.
         """
+
+        # Count real status events, without implying a duration percentage.
+        event_count = 0
+
+        async def report(message: str) -> None:
+            nonlocal event_count
+            event_count += 1
+            await ctx.report_progress(progress=event_count, message=message)
 
         result = await scrape_station_data_service(
             station_code=station_code,
@@ -160,7 +167,17 @@ def register_download_tools(mcp):
             individual=individual,
             periods=periods,
             force_download=force_download,
+            on_progress=report,
         )
+
+        if isinstance(result, ScrapingServiceErrorResponse):
+            await report(f"Proceso fallido: {result.message}")
+        else:
+            await report(
+                f"Proceso terminado para {result.station_name}: "
+                f"{result.stats.successful} correctos y {result.stats.failed} fallidos "
+                f"de {result.stats.total} periodos."
+            )
 
         if not result.success or isinstance(result, ScrapingServiceErrorResponse):
             if isinstance(result, ScrapingServiceErrorResponse):

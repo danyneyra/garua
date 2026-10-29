@@ -55,17 +55,31 @@ Requisitos principales:
 - Windows, macOS o Linux.
 - Google Chrome, Brave o Microsoft Edge para las descargas desde SENAMHI.
 
-Instala Garúa desde PyPI:
+Recomendamos instalarlo con **uv**, que mantiene Garúa y sus dependencias en un
+entorno aislado. Si aún no tienes uv, en Windows puedes instalarlo con:
 
-```bash
-pip install garua
+```powershell
+winget install --id=astral-sh.uv -e
 ```
 
-También puedes instalarlo con `pipx` si quieres usarlo como herramienta global de terminal:
+En macOS puedes usar `brew install uv`. Para Linux y otros métodos, consulta la
+[instalación oficial de uv](https://docs.astral.sh/uv/getting-started/installation/).
+Abre una terminal nueva y ejecuta:
 
 ```bash
-pipx install garua
+uv --version
+uv tool install garua
 ```
+
+Si necesitas que uv gestione una versión compatible de Python:
+
+```bash
+uv tool install --python 3.13 garua
+```
+
+Para actualizar usa `uv tool upgrade garua`. Evita modificar directamente las
+dependencias de su entorno. También puedes usar `pipx install garua` o instalar
+con pip dentro de un entorno virtual; la guía completa explica las alternativas.
 
 Verifica la instalación:
 
@@ -74,6 +88,11 @@ garua --health
 ```
 
 La guía completa está en [Instalación](https://garua.danyneyra.dev/installation/).
+
+¿Prefieres que tu asistente de IA te ayude? Copia el
+[prompt de instalación guiada](https://garua.danyneyra.dev/installation/#instalar-con-ayuda-de-un-asistente-de-ia).
+Incluye detección del sistema, instalación con uv, comprobaciones y configuración
+opcional del cliente MCP.
 
 ## Uso rápido
 
@@ -161,23 +180,42 @@ Compara marzo 2025 vs marzo 2026 para Cabana
 ```bash
 git clone https://github.com/danyneyra/garua.git
 cd garua
-python -m venv .venv
-.venv\Scripts\activate
-pip install -e ".[dev]"
+uv sync --locked --extra dev
+uv run --locked python -m unittest discover -s scripts -p "test_*.py"
 ```
 
-En Linux o macOS:
-
-```bash
-source .venv/bin/activate
-```
+`uv.lock` reproduce las dependencias de desarrollo probadas. Para trabajar desde
+el repositorio usa `uv run --locked garua` o `uv run --locked garua-mcp`.
 
 Más detalles en [Arquitectura](https://garua.danyneyra.dev/development/architecture/) y [Contribuir](https://garua.danyneyra.dev/development/contributing/).
+
+## Cómo citar Garúa
+
+Si utilizas Garúa en una investigación, tesis, artículo o informe técnico, cita
+el software e indica la versión que utilizaste. Los metadatos de citación están
+en [CITATION.cff](CITATION.cff).
+
+Para la versión 0.31.0, puedes usar esta referencia:
+
+> Neyra, D. D. (2026). *Garúa: herramienta para consultar y analizar datos hidrometeorológicos del SENAMHI Perú* (versión 0.31.0) \[Software\]. https://github.com/danyneyra/garua
+
+Cita también al **SENAMHI como fuente de los datos** e identifica las estaciones,
+las variables, el periodo analizado y la fecha de consulta para facilitar la
+reproducibilidad del estudio.
+
+Al publicar una nueva versión de Garúa, actualiza `version` y `date-released` en
+`CITATION.cff`, así como la referencia de esta sección.
+
+
+
+## Apoya Garúa
+
+Si Garúa te resulta útil, puedes apoyar su desarrollo regalándome un jugo o una
+gelatina. ¡Gracias por apoyar el proyecto!
+
+[![Regálame un jugo o una gelatina](docs/images/apoyar-garua.svg)](https://www.paypal.com/donate/?hosted_button_id=XKZDCMX8X99WJ)
+
 
 ## Licencia
 
 Este proyecto se publica bajo los términos de la licencia MIT. Ver [LICENSE](https://github.com/danyneyra/garua/blob/main/LICENSE).
-
-[Model Context Protocol]: https://modelcontextprotocol.io/docs/getting-started/intro
-[SENAMHI]: https://www.senamhi.gob.pe/?p=estaciones
-

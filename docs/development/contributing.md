@@ -1,5 +1,7 @@
 ---
 icon: lucide/hand-metal
+title: "Contribuir a Garúa: desarrollo, pruebas y documentación"
+description: "Prepara el entorno de desarrollo de Garúa, ejecuta las pruebas y consulta los criterios para contribuir código, documentación y mejoras."
 ---
 
 # Contribuir
@@ -32,6 +34,13 @@ python -m garua_mcp
 ```
 
 ## Tipos de cambio
+
+Para reproducir las versiones usadas por CI, instala uv y ejecuta desde el
+repositorio `uv sync --locked --extra dev --extra docs`. Usa
+`uv run --locked python -m unittest discover -s scripts -p "test_*.py"`
+para las pruebas del catálogo y del contrato MCP, sin acceso a SENAMHI.
+Las actualizaciones deliberadas de dependencias deben incluir la revisión de
+`pyproject.toml`, `uv.lock` y [Compatibilidad MCP](fastmcp-4.md).
 
 | Si cambias... | Revisa también |
 | --- | --- |

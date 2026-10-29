@@ -3,6 +3,8 @@ icon: lucide/map
 tags:
   - Recomendar estación
   - ubicación
+title: "Elegir una estación SENAMHI para tu ubicación"
+description: "Compara estaciones cercanas con Garúa según distancia, historial, estado y altitud. Revisa los criterios y las limitaciones de la recomendación."
 ---
 
 # Recomendar estación

@@ -3,6 +3,8 @@ icon: lucide/sheet
 tags:
   - Archivos
   - CSV
+title: "Explorar archivos CSV descargados del SENAMHI"
+description: "Localiza archivos descargados con Garúa, revisa sus columnas y filas, y extrae meses de un CSV consolidado sin repetir la descarga."
 ---
 
 

@@ -4,6 +4,8 @@ from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
 
+from garua.scraping.progress import ProgressCallback, emit_progress
+
 import garua.settings as settings
 from garua.models.scraping import (
     ScrapingServiceErrorResponse,
@@ -224,12 +226,16 @@ def _validate_periods(
     return periods
 
 
-async def _run_scraper(station: Station, query_params: ScrapingQueryParams) -> dict:
+async def _run_scraper(
+    station: Station,
+    query_params: ScrapingQueryParams,
+    on_progress: ProgressCallback | None = None,
+) -> dict:
     from garua.scraping.scraper import scraping_main
 
     stdout_capture = StringIO()
     with redirect_stdout(stdout_capture):
-        result = await scraping_main(station, query_params)
+        result = await scraping_main(station, query_params, on_progress=on_progress)
     return result
 
 
@@ -237,6 +243,7 @@ async def _scrape_multiple_periods(
     station: Station,
     periods: list[ScrapingPeriod],
     force_download: bool,
+    on_progress: ProgressCallback | None = None,
 ) -> ScrapingServiceSuccessResponse | ScrapingServiceErrorResponse:
     validated_periods = _validate_periods(periods)
     if isinstance(validated_periods, ScrapingServiceErrorResponse):
@@ -250,6 +257,10 @@ async def _scrape_multiple_periods(
         for period in validated_periods:
             extraction = _try_extract_from_existing(station, period.year, period.month)
             if extraction:
+                await emit_progress(
+                    on_progress,
+                    f"Extraído {period.month:02d}/{period.year} de archivos locales de {station.name}.",
+                )
                 extracted_results.append(extraction)
                 message_parts.append(extraction.message)
             else:
@@ -296,7 +307,7 @@ async def _scrape_multiple_periods(
     )
 
     try:
-        result = await _run_scraper(station, query_params)
+        result = await _run_scraper(station, query_params, on_progress=on_progress)
 
         if not result or not result.get("success"):
             error_msg = (
@@ -339,9 +350,7 @@ async def _scrape_multiple_periods(
         extraction_type = (
             "mixed"
             if extracted_results and downloaded_files
-            else "local_files"
-            if extracted_results
-            else "downloaded_files"
+            else "local_files" if extracted_results else "downloaded_files"
         )
 
         return _success_response(
@@ -377,6 +386,7 @@ async def scrape_station_data_service(
     individual: bool = False,
     periods: list[ScrapingPeriod] | None = None,
     force_download: bool = False,
+    on_progress: ProgressCallback | None = None,
 ) -> ScrapingServiceSuccessResponse | ScrapingServiceErrorResponse:
     """Descarga datos históricos SENAMHI o extrae periodos existentes."""
     station = find_station_by_code(station_code)
@@ -389,11 +399,16 @@ async def scrape_station_data_service(
             details=f"No existe una estación con código '{station_code}' en la base de datos.",
         )
 
+    await emit_progress(
+        on_progress, f"Preparando datos de {station.name} ({station.code})."
+    )
+
     if periods:
         return await _scrape_multiple_periods(
             station=station,
             periods=periods,
             force_download=force_download,
+            on_progress=on_progress,
         )
 
     if not mode:
@@ -408,6 +423,10 @@ async def scrape_station_data_service(
     if not force_download and mode == "month" and year and month:
         extraction_result = _try_extract_from_existing(station, year, month)
         if extraction_result:
+            await emit_progress(
+                on_progress,
+                f"Extraído {month:02d}/{year} de archivos locales de {station.name}.",
+            )
             return extraction_result
 
     query_params = ScrapingQueryParams(
@@ -420,7 +439,7 @@ async def scrape_station_data_service(
     )
 
     try:
-        result = await _run_scraper(station, query_params)
+        result = await _run_scraper(station, query_params, on_progress=on_progress)
 
         if not result or not result.get("success"):
             error_msg = (

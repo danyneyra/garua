@@ -1,5 +1,7 @@
 ---
 icon: lucide/hammer
+title: "Herramientas MCP de Garúa: parámetros y ejemplos"
+description: "Consulta las herramientas MCP de Garúa, sus parámetros y ejemplos para buscar estaciones, descargar datos, explorar CSV y analizar periodos."
 tags:
   - Tools MCP
   - Referencia
@@ -34,7 +36,7 @@ Si buscas una guía por tarea, empieza por las páginas de `docs/guides/`. Esta 
 | --- | --- | --- |
 | Calidad de datos | [`detect_anomalies_tool`](#detect_anomalies_tool) | `station_code`, `year`, `month`, `start_year`, `end_year`, `checks`, `severity`, `auto_download`, `trace_policy` |
 | Comparación | [`compare_periods_tool`](#compare_periods_tool) | `station_code`, `periods`, `metrics`, `aggregation`, `deduplicate`, `auto_download` |
-| Descarga | [`scrape_station_data`](#scrape_station_data) | `station_code`, `mode`, `year`, `month`, `start_year`, `end_year`, `individual`, `periods`, `force_download` |
+| Descarga | [`scrape_station_data`](#scrape_station_data) | `station_code`, `mode`, `year`, `month`, `start_year`, `end_year`, `individual`, `periods`, `force_download`, `ctx` |
 | Archivos CSV | [`extract_month_from_csv`](#extract_month_from_csv) | `year`, `month`, `station_name`, `station_code`, `station_type`, `station_category`, `source_file`, `overwrite` |
 | Archivos CSV | [`list_downloaded_files`](#list_downloaded_files) | `station_name`, `station_code`, `station_type`, `station_category`, `year`, `month`, `csv_dir`, `include_covering_files`, `mcp_response` |
 | Archivos CSV | [`read_csv_preview`](#read_csv_preview) | `file_path`, `relative_path`, `station_name`, `station_code`, `station_type`, `station_category`, `year`, `month`, `max_rows`, `max_columns` |
@@ -107,7 +109,7 @@ Si buscas una guía por tarea, empieza por las páginas de `docs/guides/`. Esta 
     | Parámetro | Tipo | Requerido | Default | Descripción |
     | --- | --- | --- | --- | --- |
     | `station_code` | <code>str</code> | Sí | <code>—</code> | Código interno de la estación SENAMHI (ej: '107008', '100090'). Obténlo primero con search_stations. |
-    | `periods` | <code>list&#91;dict&#93;</code> | Sí | <code>—</code> | Lista de periodos a comparar. Cada periodo debe tener: - label: Etiqueta descriptiva (ej: 'Diciembre 2024') - year: Año (ej: 2024) - month: Mes opcional (1-12) Ejemplo: ``` {'label': 'Dic 2024', 'year': 2024, 'month': 12}, {'label': 'Dic 2025', 'year': 2025, 'month': 12}``` |
+    | `periods` | <code>list&#91;dict&#93;</code> | Sí | <code>—</code> | Lista de periodos a comparar. Cada periodo debe tener: - label: Etiqueta descriptiva (ej: 'Diciembre 2024') - year: Año (ej: 2024) - month: Mes opcional (1-12) Ejemplo: &#91;{'label': 'Dic 2024', 'year': 2024, 'month': 12}, {'label': 'Dic 2025', 'year': 2025, 'month': 12}&#93; |
     | `metrics` | <code>list&#91;str&#93; &#124; None</code> | No | <code>None</code> | Métricas específicas a calcular. Si es None, usa todas las disponibles. Métricas meteorológicas convencionales: temp_max_avg, temp_min_avg, humidity_avg, precip_total, rainy_days, max_daily_precip Métricas meteorológicas automáticas: temp_avg, temp_max, temp_min, humidity_avg, precip_total, rainy_hours, rainy_days, wind_speed_avg, wind_speed_max, wind_direction_avg Métricas hidrológicas: river_level_avg, river_level_max, river_level_min, precip_total, rainy_hours, rainy_days |
     | `aggregation` | <code>str</code> | No | <code>'auto'</code> | Tipo de agregación. Usar 'auto' (por ahora único valor soportado). |
     | `deduplicate` | <code>bool</code> | No | <code>True</code> | Si True, elimina registros duplicados basándose en fecha/hora antes de calcular. Recomendado: True. |
@@ -134,14 +136,15 @@ Si buscas una guía por tarea, empieza por las páginas de `docs/guides/`. Esta 
     | Parámetro | Tipo | Requerido | Default | Descripción |
     | --- | --- | --- | --- | --- |
     | `station_code` | <code>str</code> | Sí | <code>—</code> | Código interno de la estación (ej: '100090'). Usa search_stations primero si no tienes el código. |
-    | `mode` | <code>str &#124; None</code> | No | <code>None</code> | Modo de descarga: 'month' = un mes específico (requiere year + month), 'year' = un año completo (requiere year), 'period' = rango de años (requiere start_year + end_year). Opcional si se usa el parámetro 'periods'. |
-    | `year` | <code>int &#124; None</code> | No | <code>None</code> | Año (ej: 2025). Requerido para mode='month' o mode='year'. |
-    | `month` | <code>int &#124; None</code> | No | <code>None</code> | Mes como número (1-12). Requerido para mode='month'. |
+    | `mode` | <code>str &#124; None</code> | No | <code>None</code> | Para varios meses específicos usa periods en una sola llamada. En otros casos: 'month' = un mes específico (requiere year + month), 'year' = un año completo (requiere year), 'period' = rango de años (requiere start_year + end_year). Opcional si se usa el parámetro 'periods'. |
+    | `year` | <code>int &#124; None</code> | No | <code>None</code> | Año (ej: 2025) para mode='month' o 'year'. Para varios meses específicos usa periods. |
+    | `month` | <code>int &#124; None</code> | No | <code>None</code> | Un único mes (1-12) para mode='month'. Para varios meses usa periods en una sola llamada. |
     | `start_year` | <code>int &#124; None</code> | No | <code>None</code> | Año de inicio del rango. Requerido para mode='period'. |
     | `end_year` | <code>int &#124; None</code> | No | <code>None</code> | Año de fin del rango. Requerido para mode='period'. |
-    | `individual` | <code>bool</code> | No | <code>False</code> | True = genera un CSV por mes. False (por defecto) = CSV consolidado. |
-    | `periods` | <code>list&#91;ScrapingPeriod&#93; &#124; None</code> | No | <code>None</code> | Lista de periodos específicos a descargar en una sola sesión de navegador (MÁS EFICIENTE para múltiples meses). Cada periodo debe tener 'year' y 'month'. Máximo 12 periodos. Ejemplo: ```{'year': 2025, 'month': 3}, {'year': 2026, 'month': 3}```. Si se provee, ignora mode/year/month/start_year/end_year. BENEFICIO: Abre el navegador UNA SOLA VEZ en lugar de N veces. |
+    | `individual` | <code>bool</code> | No | <code>False</code> | Para mode='year' o 'period': True genera un CSV por mes; False consolida. Con periods o mode='month' siempre se genera un CSV por mes. |
+    | `periods` | <code>list&#91;ScrapingPeriod&#93; &#124; None</code> | No | <code>None</code> | Opción preferida para varios meses de la misma estación, consecutivos o separados, incluso entre años. Una llamada y como máximo una sesión de navegador; genera un CSV por mes. De 1 a 12 periodos con year y month. Ejemplo enero-marzo: &#91;{'year': 2025, 'month': 1}, {'year': 2025, 'month': 2}, {'year': 2025, 'month': 3}&#93;. Omite mode/year/month/start_year/end_year cuando uses periods. |
     | `force_download` | <code>bool</code> | No | <code>False</code> | Si True, fuerza la descarga incluso si ya existe un archivo para ese periodo. Útil para obtener datos actualizados o corregidos. Por defecto: False. |
+    | `ctx` | <code>Context</code> | No | <code>CurrentContext()</code> | — |
 
 ### Archivos CSV
 

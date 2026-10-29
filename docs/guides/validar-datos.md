@@ -5,6 +5,8 @@ tags:
   - Data
   - Datos
   - Calidad
+title: "Validar la calidad de datos del SENAMHI en CSV"
+description: "Revisa datos faltantes, duplicados, trazas y anomalías en archivos del SENAMHI con Garúa. Interpreta los resultados antes de usar las series."
 ---
 
 

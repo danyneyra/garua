@@ -2,6 +2,8 @@
 icon: lucide/list-checks
 tags:
   - Ejemplos
+title: "Ejemplos de descarga y análisis de datos del SENAMHI"
+description: "Sigue ejemplos de Garúa para buscar estaciones, descargar CSV, resumir periodos, comparar datos y revisar su calidad mediante CLI o MCP."
 ---
 
 

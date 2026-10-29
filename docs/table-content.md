@@ -1,3 +1,7 @@
+---
+title: "Índice de documentación de Garúa"
+description: "Encuentra las guías de instalación, uso CLI y MCP, descarga de datos del SENAMHI, análisis de CSV y desarrollo de Garúa."
+---
 # Documentación de Garua
 
 Garua ayuda a trabajar con datos hidrometeorológicos oficiales del SENAMHI Perú desde una CLI o desde clientes MCP como VS Code, Claude Desktop y Codex.

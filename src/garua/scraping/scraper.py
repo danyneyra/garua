@@ -1,4 +1,5 @@
 import asyncio
+from garua.scraping.progress import ProgressCallback, emit_progress
 import zendriver as zd
 from zendriver import cdp
 from bs4 import BeautifulSoup
@@ -110,7 +111,13 @@ async def get_select_options(page) -> str:
 
 
 async def process_option(
-    page, response_queue: asyncio.Queue, option, csv_manager, save_individual=True
+    page,
+    response_queue: asyncio.Queue,
+    option,
+    csv_manager,
+    save_individual=True,
+    on_progress: ProgressCallback | None = None,
+    station_label: str = "",
 ) -> bool:
     """
     Procesa una opción del select usando intercepción directa de red.
@@ -150,6 +157,11 @@ async def process_option(
 
         except Exception as e:
             if attempt <= MAX_RETRIES:
+                await emit_progress(
+                    on_progress,
+                    f"Reintentando {option['text']} de {station_label}: "
+                    f"intento {attempt + 1} de {MAX_RETRIES + 1}.",
+                )
                 ui.print_retry_attempt(attempt, option["value"], str(e))
                 await asyncio.sleep(RETRY_SLEEP)
             else:
@@ -163,9 +175,17 @@ async def process_option(
     return False
 
 
-async def scraping_main(query_station: Station, query_params: ScrapingQueryParams):
+async def scraping_main(
+    query_station: Station,
+    query_params: ScrapingQueryParams,
+    on_progress: ProgressCallback | None = None,
+):
     browser = None
     try:
+        await emit_progress(
+            on_progress,
+            f"Conectando con SENAMHI para {query_station.name} ({query_station.code}).",
+        )
         # Validar navegador
         browser_check = check_browser()
         if not browser_check.ok:
@@ -220,6 +240,8 @@ async def scraping_main(query_station: Station, query_params: ScrapingQueryParam
                 query_params.start_year, query_params.end_year
             )
             save_individual = query_params.individual
+        else:
+            raise ValueError(f"Modo de consulta no válido: {query_params.mode}")
 
         # ── Filtro MCP: Periodos específicos ──────────────────────────────────
         # Si la llamada viene del MCP con periodos específicos, filtrar solo esos
@@ -246,12 +268,26 @@ async def scraping_main(query_station: Station, query_params: ScrapingQueryParam
         ui.print_options_count(len(filtered_options))
 
         successful_count = 0
+        await emit_progress(
+            on_progress,
+            f"Se procesarán {len(filtered_options)} periodos de {query_station.name}.",
+        )
         prev_year = None
         for i, option in enumerate(filtered_options, 1):
+            await emit_progress(
+                on_progress,
+                f"Descargando {option['text']} de {query_station.name} "
+                f"({query_station.code}): periodo {i} de {len(filtered_options)}.",
+            )
             ui.print_processing_option(i, len(filtered_options), option["text"])
 
             current_year = option["value"][:4]
             if prev_year is not None and current_year != prev_year:
+                await emit_progress(
+                    on_progress,
+                    f"Pausa de {YEAR_BOUNDARY_SLEEP}s antes del año "
+                    f"{current_year} de {query_station.name}.",
+                )
                 ui.info(f"Nuevo año ({current_year}) — pausa de {YEAR_BOUNDARY_SLEEP}s")
                 await asyncio.sleep(YEAR_BOUNDARY_SLEEP)
             prev_year = current_year
@@ -262,15 +298,27 @@ async def scraping_main(query_station: Station, query_params: ScrapingQueryParam
                 option,
                 csv_manager,
                 save_individual=save_individual,
+                on_progress=on_progress,
+                station_label=f"{query_station.name} ({query_station.code})",
             )
             if success:
                 successful_count += 1
+
+            await emit_progress(
+                on_progress,
+                f"{option['text']} de {query_station.name}: "
+                + ("procesado" if success else "fallido")
+                + f"; {i} de {len(filtered_options)} periodos procesados.",
+            )
 
             if i < len(filtered_options):
                 jitter = random.uniform(JITTER_MIN, JITTER_MAX)
                 await asyncio.sleep(jitter)
 
         if not save_individual:
+            await emit_progress(
+                on_progress, f"Guardando archivo consolidado de {query_station.name}."
+            )
             csv_manager.save_consolidated_file(query_params)
 
         ui.print_completion_summary(

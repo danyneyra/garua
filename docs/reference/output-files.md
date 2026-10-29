@@ -3,6 +3,8 @@ icon: lucide/file-output
 tags:
   - Salida de Archivos
   - Archivos CSV
+title: "Archivos CSV de Garúa: nombres, rutas y periodos"
+description: "Conoce cómo organiza Garúa los CSV descargados: carpetas de estaciones, archivos mensuales, consolidados y rutas de salida."
 ---
 
 # Archivos de salida

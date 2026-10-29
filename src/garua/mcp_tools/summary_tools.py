@@ -1,5 +1,7 @@
 """Tools MCP para resumen de datos de estaciones SENAMHI."""
 
+from fastmcp.tools import ToolResult
+
 from typing import Annotated, Literal
 
 from pydantic import Field
@@ -80,7 +82,7 @@ def register_summary_tools(mcp):
                 )
             ),
         ] = "as_0_05",
-    ) -> dict:
+    ) -> ToolResult:
         """
         Resume datos SENAMHI de una estación para un mes, año o periodo individual.
 

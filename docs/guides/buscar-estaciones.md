@@ -2,6 +2,8 @@
 icon: lucide/search
 tags:
   - Buscar estaciones
+title: "Buscar estaciones meteorológicas e hidrológicas del SENAMHI"
+description: "Busca estaciones del SENAMHI por nombre, código, ubicación, altitud o cercanía con Garúa. Consulta sus fichas antes de seleccionar datos."
 ---
 
 # Buscar estaciones

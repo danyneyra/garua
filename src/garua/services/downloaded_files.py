@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from garua.settings import CSV_DIR
+from garua.services.file_delivery import file_resource_uri
 from garua.utils.helpers import (
     normalize_station_slug,
     parse_csv_period,
@@ -36,6 +37,7 @@ class DownloadedCsvFile:
             "path": str(self.path),
             "relative_path": self.relative_path,
             "uri": self.uri,
+            "resource_uri": file_resource_uri(self.path),
             "station": self.station,
             "station_code": self.station_code,
             "station_type": self.station_type,

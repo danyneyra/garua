@@ -1,10 +1,10 @@
 ---
 icon: lucide/droplet
-title: "Documentación"
+title: "Datos del SENAMHI Perú: descarga y análisis"
+description: "Descarga y analiza datos meteorológicos e hidrológicos oficiales del SENAMHI Perú con Garúa. Usa la terminal o conecta un asistente mediante MCP."
 ---
-<style>
-.md-content .md-typeset h1 { display: none; }
-</style>
+
+# Datos del SENAMHI con Garúa
 
 <div align="center">
   <a href="https://garua.danyneyra.dev/">
@@ -28,7 +28,7 @@ title: "Documentación"
 
 ---
 
-Garúa es una herramienta de código abierto para trabajar con estaciones meteorológicas e hidrológicas del [SENAMHI]. Permite buscar estaciones, descargar datos históricos en CSV, revisar archivos locales, resumir periodos, comparar meses o años, validar calidad de datos y recomendar estaciones cercanas a un punto geográfico.
+Garúa es una herramienta independiente de código abierto para trabajar con estaciones meteorológicas e hidrológicas del [SENAMHI]. Permite buscar estaciones, descargar datos históricos en CSV, revisar archivos locales, resumir periodos, comparar meses o años, validar calidad de datos y recomendar estaciones cercanas a un punto geográfico.
 
 ## Video de instalación, configuración y uso
 
@@ -138,7 +138,7 @@ Abre la app interactiva:
 ```console
 $ garua
 
- ╭─── Garúa v0.30.0 ───────────────────────────────────╮
+ ╭─── Garúa v0.31.0 ───────────────────────────────────╮
  │                                                     │
  │  GARUA                                              │
  │  Datos meteorológicos e hidrológicos                │
@@ -233,6 +233,19 @@ Compara marzo 2025 vs marzo 2026 para Cabana
     [Ver arquitectura](development/architecture.md){data-preview}
 
 </div>
+
+
+## Cómo citar Garúa
+
+Si utilizas Garúa en una investigación o estudio, y consideras citar la herramienta, puedes consultar
+[referencia del software y las recomendaciones para citar los datos del SENAMHI](citation.md){data-preview}.
+
+## Apoya Garúa
+
+Si Garúa te resulta útil, puedes apoyar su desarrollo regalándome un jugo o una
+gelatina :) ¡Gracias por apoyar el proyecto!
+
+[![Regálame un jugo o una gelatina](images/apoyar-garua.svg)](https://www.paypal.com/donate/?hosted_button_id=XKZDCMX8X99WJ)
 
 
 ## Licencia
