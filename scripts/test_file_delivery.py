@@ -57,7 +57,7 @@ class FileDeliveryTests(unittest.IsolatedAsyncioTestCase):
             text = "Año;Mes;Día\n2025;1;1\n"
             path.write_text(text, encoding="utf-8", newline="")
             files, links = build_files_info([str(path)], "downloaded_file")
-            self.assertEqual(str(files[0].uri), path.as_uri())
+            self.assertEqual(str(files[0].uri), path.resolve().as_uri())
             self.assertEqual(files[0].resource_uri, links[0].uri)
             server = FastMCP("file-delivery-test")
             register_resources(server)
@@ -123,7 +123,9 @@ class FileDeliveryTests(unittest.IsolatedAsyncioTestCase):
             ):
                 self.assertIsNone(file_resource_uri(outside))
                 uri = file_resource_uri(export)
-                self.assertEqual(resolve_file_resource(uri.rsplit("/", 1)[1]), export)
+                self.assertEqual(
+                    resolve_file_resource(uri.rsplit("/", 1)[1]), export.resolve()
+                )
                 for identity in (
                     ["csv", "../outside.csv"],
                     ["csv", str(outside)],
