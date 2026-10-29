@@ -76,9 +76,9 @@ class ScrapingMCPArgumentTests(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(result.is_error)
             payload = result.structured_content
             self.assertTrue(payload["success"])
-            self.assertEqual(payload["files"][0]["uri"], path.as_uri())
+            self.assertEqual(payload["files"][0]["uri"], path.resolve().as_uri())
             links = [item for item in result.content if item.type == "resource_link"]
-            self.assertEqual(links[0].uri, path.as_uri())
+            self.assertEqual(links[0].uri, path.resolve().as_uri())
             text_payload = json.loads(result.content[-1].text)
             self.assertEqual(text_payload, payload)
             json.dumps(payload)
@@ -148,7 +148,7 @@ class FileLinkTests(unittest.TestCase):
             path.write_text("test", encoding="utf-8")
             files, links = build_files_info([str(path)], kind="downloaded_file")
             self.assertIsInstance(links[0].uri, str)
-            self.assertEqual(links[0].uri, path.as_uri())
+            self.assertEqual(links[0].uri, path.resolve().as_uri())
             self.assertEqual(files[0].size_bytes, 4)
 
 
